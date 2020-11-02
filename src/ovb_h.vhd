@@ -10,12 +10,13 @@ package ovb_h is
 
     constant DISPLAY_MIN_PERIOD                 : real := 1.2e-6;
     constant DISPLAY_MIN_PERIOD_CYCLES          : integer := integer((2.0*1.2e-6)/CLOCK_PERIOD);
-    constant DISPLAY_WAIT_STARTUP_CYCLES        : integer := integer(40.0e-3/DISPLAY_MIN_PERIOD;
-    constant DISPLAY_CLEAR_DISPLAY_CYCLES       : integer := integer(1.52e-3/DISPLAY_MIN_PERIOD;
-    constant DISPLAY_RETURN_HOME_CYCLES         : integer := integer(1.52e-3/DISPLAY_MIN_PERIOD;
-    constant DISPLAY_ENTRY_MODE_SET_CYCLES      : integer := integer(37.0e-6/DISPLAY_MIN_PERIOD;
-    constant DISPLAY_DISPLAY_ON_CONTROL_CYCLES  : integer := integer(37.0e-6/DISPLAY_MIN_PERIOD;
-    constant DISPLAY_FUNCTION_SET_CYCLES        : integer := integer(37.0e-6/DISPLAY_MIN_PERIOD;
+    constant DISPLAY_WAIT_STARTUP_CYCLES        : integer := integer(40.0e-3/DISPLAY_MIN_PERIOD);
+    constant DISPLAY_CLEAR_DISPLAY_CYCLES       : integer := integer(1.52e-3/DISPLAY_MIN_PERIOD);
+    constant DISPLAY_RETURN_HOME_CYCLES         : integer := integer(1.52e-3/DISPLAY_MIN_PERIOD);
+    constant DISPLAY_ENTRY_MODE_SET_CYCLES      : integer := integer(37.0e-6/DISPLAY_MIN_PERIOD);
+    constant DISPLAY_DISPLAY_ON_CONTROL_CYCLES  : integer := integer(37.0e-6/DISPLAY_MIN_PERIOD);
+    constant DISPLAY_FUNCTION_SET_CYCLES        : integer := integer(37.0e-6/DISPLAY_MIN_PERIOD);
+    constant DISPLAY_ENABLE_CYCLES              : integer := integer(1.2e-6/CLOCK_PERIOD);
 
     --                                       00000000001111111111222222222233
     --                                       01234567890123456789012345678901
@@ -29,14 +30,11 @@ package ovb_h is
     --                                       00000000001111111111222222222233
     --                                       01234567890123456789012345678901
     constant FULL_CALL_STANDBY  : string := "Full CalibrationStandby         ";
-    --                                       00000000001111111111222222222233
-    --                                       01234567890123456789012345678901
-    constant PCV_STANDBY        : string := "MODE: PCV       Standby         ";
 
-    function char_to_lcd_hex(char: character) return std_logic_vector(7 downto 0);
+    function char_to_lcd_hex(char: character) return std_logic_vector;
     function lcd_hex_to_char(slv: std_logic_vector(7 downto 0)) return character;
 
-    record display_out_t is
+    type display_out_t is record
         -- Operation enable signal, falling edge triggered
         e   : std_logic_vector(1 downto 0);
         -- Read not write (0 := write, 1:= read)
@@ -49,7 +47,7 @@ package ovb_h is
         t   : std_logic_vector(7 downto 0);
     end record;
 
-    record sdpram_18x1k_in_t is
+    type sdpram_18x1k_in_t is record
         addra   : std_logic_vector(9 downto 0);
         wea     : std_logic;
         dina    : std_logic_vector(17 downto 0);
@@ -63,14 +61,12 @@ package ovb_h is
     constant DISPLAY_FUNCTION_SET       : std_logic_vector(15 downto 0) := x"0038";
     --constant DISPLAY_READ_BUSY_FLAG   : std_logic_vector(15 downto 0) := x"";
 
-
-
 end package;
 
 
-package body of ovb_h is
+package body ovb_h is
 
-    function char_to_lcd_hex(char: character) return std_logic_vector(7 downto 0) is
+    function char_to_lcd_hex(char: character) return std_logic_vector is
     begin
         case char is
             when ' ' => return x"20";

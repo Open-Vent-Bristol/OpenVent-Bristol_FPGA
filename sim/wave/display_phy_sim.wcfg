@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="display_phy_sim.wdb" id="1">
+         <top_modules>
+            <top_module name="display_phy_tb" />
+            <top_module name="ovb_h" />
+            <top_module name="stdlib_h" />
+            <top_module name="tb_h" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="3060000001fs"></ZoomEndTime>
+      <Cursor1Time time="440000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="249"></NameColumnWidth>
+      <ValueColumnWidth column_width="123"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="13" />
+   <wvobject fp_name="/display_phy_tb/i_dut/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/rst" type="logic">
+      <obj_property name="ElementShortName">rst</obj_property>
+      <obj_property name="ObjectShortName">rst</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/start" type="logic">
+      <obj_property name="ElementShortName">start</obj_property>
+      <obj_property name="ObjectShortName">start</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/rnw" type="logic">
+      <obj_property name="ElementShortName">rnw</obj_property>
+      <obj_property name="ObjectShortName">rnw</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/rs" type="logic">
+      <obj_property name="ElementShortName">rs</obj_property>
+      <obj_property name="ObjectShortName">rs</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/csn" type="array">
+      <obj_property name="ElementShortName">csn[1:0]</obj_property>
+      <obj_property name="ObjectShortName">csn[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/din" type="array">
+      <obj_property name="ElementShortName">din[7:0]</obj_property>
+      <obj_property name="ObjectShortName">din[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/dout" type="array">
+      <obj_property name="ElementShortName">dout[7:0]</obj_property>
+      <obj_property name="ObjectShortName">dout[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/display" type="array">
+      <obj_property name="ElementShortName">display</obj_property>
+      <obj_property name="ObjectShortName">display</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/phy_st" type="other">
+      <obj_property name="ElementShortName">phy_st</obj_property>
+      <obj_property name="ObjectShortName">phy_st</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/e" type="logic">
+      <obj_property name="ElementShortName">e</obj_property>
+      <obj_property name="ObjectShortName">e</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/phy_count" type="array">
+      <obj_property name="ElementShortName">phy_count[5:0]</obj_property>
+      <obj_property name="ObjectShortName">phy_count[5:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/display_phy_tb/i_dut/done" type="logic">
+      <obj_property name="ElementShortName">done</obj_property>
+      <obj_property name="ObjectShortName">done</obj_property>
+   </wvobject>
+</wave_config>
