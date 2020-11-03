@@ -61,6 +61,104 @@ package ovb_h is
     constant DISPLAY_FUNCTION_SET       : std_logic_vector(15 downto 0) := x"0038";
     --constant DISPLAY_READ_BUSY_FLAG   : std_logic_vector(15 downto 0) := x"";
 
+    -- Button Inputs
+    constant BUTTON_SELECT              : integer := 0;
+    constant BUTTON_MINUS               : integer := 1;
+    constant BUTTON_PLUS                : integer := 2;
+    constant BUTTON_MUTE_STANDBY        : integer := 3;
+
+    constant BUTTON_CE_CYCLES           : integer := integer(50.0e-3/CLOCK_PERIOD);
+
+    -- UI
+    constant OFF_ST     : std_logic_vector(3 downto 0) := x"0";
+    constant PCV_ST     : std_logic_vector(3 downto 0) := x"1";
+    constant PSV_ST     : std_logic_vector(3 downto 0) := x"2";
+    constant QCAL_ST    : std_logic_vector(3 downto 0) := x"3";
+    constant FCAL_ST    : std_logic_vector(3 downto 0) := x"4";
+
+    type vent_mode_list_t is array(0 to 2) of std_logic_vector(3 downto 0);
+    type vent_mode_array_t is array(0 to 4) of vent_mode_list_t;
+
+    constant VENT_MODE_TABLE: vent_mode_array_t := (
+    --   Current    Next        Previous
+        (OFF_ST,    PCV_ST,     FCAL_ST),
+        (PCV_ST,    PSV_ST,     OFF_ST),
+        (PSV_ST,    QCAL_ST,    PCV_ST),
+        (QCAL_ST,   FCAL_ST,    PSV_ST),
+        (FCAL_ST,   OFF_ST,     QCAL_ST)
+    );
+
+    SET_PRESS, SET_RESP, SET_IE_RATIO, SET_TIDAL_U, SET_TIDAL_L, SET_APNEA_T, SET_FIO2, SET_VENT
+
+    constant SET_PRESS              : std_logic_vector(3 downto 0) := x"0";
+    constant SET_RESP               : std_logic_vector(3 downto 0) := x"1";
+    constant SET_IE_RATIO           : std_logic_vector(3 downto 0) := x"2";
+    constant SET_TIDAL_U            : std_logic_vector(3 downto 0) := x"3";
+    constant SET_TIDAL_L            : std_logic_vector(3 downto 0) := x"4";
+    constant SET_APNEA_T            : std_logic_vector(3 downto 0) := x"5";
+    constant SET_FIO2               : std_logic_vector(3 downto 0) := x"6";
+    constant SET_VENT               : std_logic_vector(3 downto 0) := x"7";
+
+    type sel_list_t is array (0 to 2) of std_logic_vector(3 downto 0);
+
+    type pcv_sel_array_t is array(0 to 6) of sel_list_t;
+    constant PCV_SEL_TABLE: pcv_sel_array_t := (
+    --   Current        Next            Previous
+        (SET_PRESS,     SET_RESP,       SET_VENT),
+        (SET_RESP,      SET_IE_RATIO,   SET_PRESS),
+        (SET_IE_RATIO,  SET_TIDAL_U,    SET_RESP),
+        (SET_TIDAL_U,   SET_TIDAL_L,    SET_IE_RATIO),
+        (SET_TIDAL_L,   SET_FIO2,       SET_TIDAL_U),
+        (SET_FIO2,      SET_VENT,       SET_TIDAL_L),
+        (SET_VENT,      SET_PRESS,      SET_FIO2)
+    );
+
+    type psv_sel_array_t is array(0 to 5) of sel_list_t;
+    constant PSV_SEL_TABLE: psv_sel_array_t := (
+    --   Current        Next            Previous
+        (SET_PRESS,     SET_TIDAL_U,    SET_VENT),
+        (SET_TIDAL_U,   SET_TIDAL_L,    SET_IE_RATIO),
+        (SET_TIDAL_L,   SET_APNEA_T,    SET_TIDAL_U),
+        (SET_APNEA_T,   SET_FIO2,       SET_TIDAL_L),
+        (SET_FIO2,      SET_VENT,       SET_APNEA_T),
+        (SET_VENT,      SET_PRESS,      SET_FIO2)
+    );
+
+    constant PRESSURE_MIN           : natural := 1;
+    constant PRESSURE_MAX           : natural := 35;
+    constant PRESSURE_NOM           : natural := 20;
+    constant PRESSURE_INC           : natural := 1;
+
+    constant RESPIRATORY_MIN        : natural := 10;
+    constant RESPIRATORY_MAX        : natural := 30;
+    constant RESPIRATORY_NOM        : natural := 20;
+    constant RESPIRATORY_INC        : natural := 2;
+    -- Not sure how to increment/decrement inhale/exhale ratio
+    constant IE_RATIO_MIN           : natural := 10;
+    constant IE_RATIO_MAX           : natural := 30;
+    constant IE_RATIO_NOM           : natural := 20;
+    constant IE_RATIO_INC           : natural := 1;
+
+    constant TIDAL_VOL_UPPER_MIN    : natural := 200;
+    constant TIDAL_VOL_UPPER_MAX    : natural := 800;
+    constant TIDAL_VOL_UPPER_NOM    : natural := 550;
+    constant TIDAL_VOL_UPPER_INC    : natural := 50;
+
+    constant TIDAL_VOL_LOWER_MIN    : natural := 200;
+    constant TIDAL_VOL_LOWER_MAX    : natural := 800;
+    constant TIDAL_VOL_LOWER_NOM    : natural := 300;
+    constant TIDAL_VOL_LOWER_INC    : natural := 50;
+
+    constant APNEA_TIME_MIN         : natural := 20;
+    constant APNEA_TIME_MAX         : natural := 60;
+    constant APNEA_TIME_NOM         : natural := 30;    -- TODO: Made up value - determine real default
+    constant APNEA_TIME_INC         : natural := 1;
+
+    constant FIO2_MIN               : natural := 0;
+    constant FIO2_MAX               : natural := 100;
+    constant FIO2_NOM               : natural := 21;
+    constant FIO2_INC               : natural := 1;
+
 end package;
 
 

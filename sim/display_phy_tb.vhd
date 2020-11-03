@@ -7,7 +7,6 @@ use work.ovb_h.all;
 use work.tb_h.all;
 
 
-
 entity display_phy_tb is
     generic(
         SEED1   : positive := 1000000;
