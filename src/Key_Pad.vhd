@@ -29,11 +29,12 @@
 -- Additional Comments:
 --
 -- Notes:  
--- MilliSec - SYNTHESIZABLE CODE ONLY
---   Common module to provide time based enables across the design. 
--- MilliSec_tb - test bench verify timing of outputs 
---   verify each enable period
---   verify each enable pulse width
+-- Key_Pad - SYNTHESIZABLE CODE ONLY
+--   80 ms button debounce and detect buttons held for 3 seconds. 
+-- Key_Pad_tb - test bench verify timing of outputs 
+--   verify bouncing buttons do not trigger detection
+--   verify stable buttons are detected in 80 -85 ms
+--	 verify held buttons are detected in 3 sec +257 ms or - 185 ms
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -42,9 +43,10 @@ Use ieee.numeric_std.all;
 use IEEE.MATH_REAL.ALL;
 use work.Common.all;
 
--- Monitor keypad and debounce inputs.  Also provide 3 sec hold detect
--- Button outputs activate after timeout, hold value until button is released 
--- Spkr outputs are asserted for one clock cycle to trigger speaker sounds
+-- Monitor keypad and debounce inputs.  Also provide 3 sec hold detect.
+-- Button outputs activate after timeout, hold value until button is released. 
+-- Spkr outputs are asserted for one clock cycle to trigger speaker sounds,
+-- tick on press and boop on hold. 
 ENTITY Key_Pad IS
   GENERIC (
 	CLK_HZ : REAL := 33.554432E6 -- 2^25
@@ -119,6 +121,7 @@ begin
 
 END behav;  -- Key_Pad
 
+-- synthesis translate_off
 --------------------------------------------------------------------------------
 --  Test bench for Key_Pad
 --
@@ -237,3 +240,4 @@ begin
 
 end TB_ARCH;  -- Key_Pad_tb
 
+-- synthesis translate_on
