@@ -1,0 +1,6 @@
+vhdl work ../../src/stdlib_h.vhd
+vhdl work ../../src/ovb_h.vhd
+vhdl work ../../sim/tb_h.vhd
+
+vhdl work ../../src/display_refresh.vhd
+vhdl work ../../sim/display_refresh_tb.vhd
