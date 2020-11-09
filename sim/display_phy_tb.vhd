@@ -26,7 +26,6 @@ architecture tb of display_phy_tb is
     signal rs           : std_logic;
     signal csn          : std_logic_vector(1 downto 0);
     signal din          : std_logic_vector(7 downto 0);
-    signal dout         : std_logic_vector(7 downto 0);
     signal display      : display_out_t;
     signal done         : std_logic;
 
@@ -56,7 +55,7 @@ begin
         end procedure;
 
         procedure RandWrite(csn_i: std_logic_vector(1 downto 0)) is
-            variable rdata   : std_logic_vector(7 downto 0);
+            variable rdata   : std_logic_vector(din'range);
         begin
             rand(rdata, theSeed1, theSeed2);
             wait until clk = '1';
@@ -90,7 +89,6 @@ begin
             rs          => rs,
             csn         => csn,
             din         => din,
-            dout        => dout,
             display     => display,
             done        => done
         );
