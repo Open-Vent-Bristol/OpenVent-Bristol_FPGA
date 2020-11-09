@@ -15,7 +15,6 @@ entity display_phy is
         rs          : in    std_logic;
         csn         : in    std_logic_vector(1 downto 0);
         din         : in    std_logic_vector(7 downto 0);
-        dout        : out   std_logic_vector(7 downto 0);
         display     : out   display_out_t;
         done        : out   std_logic
     );
@@ -29,6 +28,7 @@ architecture rtl of display_phy is
 
     signal e            : std_logic;
     signal phy_count    : unsigned(clog2(DISPLAY_ENABLE_CYCLES)-1 downto 0);
+    signal clk_cycle    : std_logic;
 
 begin
 
@@ -37,7 +37,6 @@ begin
     display.t <= (others=>'1') when rnw = '1' else (others=>'0');
     display.rnw <= rnw;
     display.rs <= rs;
-    display.db <= din;
 
     p_rst: process(clk)
     begin
@@ -46,8 +45,9 @@ begin
                 phy_st <= IDLE_ST;
                 e <= '0';
                 phy_count <= (others=>'0');
-                dout <= (others=>'0');
                 done <= '0';
+                display.db <= (others=>'0');
+                clk_cycle <= '0';
             else
                 case phy_st is
                     when IDLE_ST =>
@@ -60,11 +60,25 @@ begin
                         end if;
                     when E_LOW_ST =>
                         if phy_count = DISPLAY_ENABLE_CYCLES then
-                            phy_st <= IDLE_ST;
+                            if clk_cycle = '1' then
+                                phy_st <= IDLE_ST;
+                            else
+                                phy_st <= E_HIGH_ST;
+                            end if;
                         end if;
                     when OTHERS =>
                         phy_st <= IDLE_ST;
                 end case;
+
+                if phy_st = E_HIGH_ST and clk_cycle = '0' then
+                    display.db <= din(7 downto 4);
+                elsif phy_st = E_HIGH_ST and clk_cycle = '1' then
+                    display.db <= din(3 downto 0);
+                end if;
+
+                if phy_st = E_LOW_ST and phy_count = DISPLAY_ENABLE_CYCLES then
+                    clk_cycle <= not clk_cycle;
+                end if;
 
                 if phy_st = E_HIGH_ST then
                     e <= '1';
@@ -72,7 +86,7 @@ begin
                     e <= '0';
                 end if;
 
-                if phy_st = E_HIGH_ST or phy_st = E_LOW_ST then
+                if phy_st /= IDLE_ST then
                     phy_count <= phy_count + 1;
                     if phy_count = DISPLAY_ENABLE_CYCLES then
                         phy_count <= (others=>'0');
@@ -81,11 +95,7 @@ begin
                     phy_count <= (others=>'0');
                 end if;
 
-                if phy_st = E_LOW_ST and phy_count = 0 then
-                    dout <= din;
-                end if;
-
-                if phy_st = E_LOW_ST and phy_count = DISPLAY_ENABLE_CYCLES then
+                if phy_st = E_LOW_ST and clk_cycle = '1' and phy_count = DISPLAY_ENABLE_CYCLES then
                     done <= '1';
                 else
                     done <= '0';

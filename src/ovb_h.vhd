@@ -42,23 +42,16 @@ package ovb_h is
         -- Register select (0 := command, 1:= data)
         rs  : std_logic;
         -- Bidirectional data bus
-        db  : std_logic_vector(7 downto 0);
+        db  : std_logic_vector(3 downto 0);
         -- Tristate control
-        t   : std_logic_vector(7 downto 0);
-    end record;
-
-    type sdpram_18x1k_in_t is record
-        addra   : std_logic_vector(9 downto 0);
-        wea     : std_logic;
-        dina    : std_logic_vector(17 downto 0);
-        addrb   : std_logic_vector(9 downto 0);
+        t   : std_logic_vector(3 downto 0);
     end record;
 
     constant DISPLAY_CLEAR_DISPLAY      : std_logic_vector(15 downto 0) := x"0001";
     constant DISPLAY_RETURN_HOME        : std_logic_vector(15 downto 0) := x"0002";
     constant DISPLAY_ENTRY_MODE_SET     : std_logic_vector(15 downto 0) := x"0006";
     constant DISPLAY_DISPLAY_ON_CONTROL : std_logic_vector(15 downto 0) := x"000C";
-    constant DISPLAY_FUNCTION_SET       : std_logic_vector(15 downto 0) := x"0038";
+    constant DISPLAY_FUNCTION_SET       : std_logic_vector(15 downto 0) := x"0028";
     --constant DISPLAY_READ_BUSY_FLAG   : std_logic_vector(15 downto 0) := x"";
 
     -- Button Inputs
@@ -87,8 +80,6 @@ package ovb_h is
         (QCAL_ST,   FCAL_ST,    PSV_ST),
         (FCAL_ST,   OFF_ST,     QCAL_ST)
     );
-
-    SET_PRESS, SET_RESP, SET_IE_RATIO, SET_TIDAL_U, SET_TIDAL_L, SET_APNEA_T, SET_FIO2, SET_VENT
 
     constant SET_PRESS              : std_logic_vector(3 downto 0) := x"0";
     constant SET_RESP               : std_logic_vector(3 downto 0) := x"1";
@@ -133,7 +124,7 @@ package ovb_h is
     constant RESPIRATORY_MAX        : natural := 30;
     constant RESPIRATORY_NOM        : natural := 20;
     constant RESPIRATORY_INC        : natural := 2;
-    -- Not sure how to increment/decrement inhale/exhale ratio
+
     constant IE_RATIO_MIN           : natural := 10;
     constant IE_RATIO_MAX           : natural := 30;
     constant IE_RATIO_NOM           : natural := 20;
