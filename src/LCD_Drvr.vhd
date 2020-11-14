@@ -247,7 +247,7 @@ begin
 
   LCD_BMem: process (Clk) is
   	variable LCD_Mem : integer_vector(0 to Mem_Depth-1) :=
-										(others => character'pos('ÿ'));
+										(others => character'pos('Ã¿'));
 	variable Addr_M_Wr, Addr_M_Rd : natural range 0 to Mem_Depth-1;
   begin
   	if (rising_edge(Clk)) then
@@ -389,7 +389,7 @@ begin
 	  variable temp : string (1 to 3);
 	begin 
 	  temp := Pixel_t'image(Pixel_t'Val(Data)); 
-	  report "Pixel - temp = """ & temp & """";
+	  -- report "Pixel - temp = """ & temp & """";
 	  return temp(2 to 2); 
 	end function pixel; 
 	function char_row (abyte : natural) return string is 
