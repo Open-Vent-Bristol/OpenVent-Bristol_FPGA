@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use ovb_h.all;
+use work.ovb_h.all;
 
 
 entity display is
@@ -21,7 +21,7 @@ architecture rtl of display is
 
     type display_st_t is (IDLE_ST, WAIT_RST_ST, FUNCTION_SET_ST, DISPLAY_ON_ST, DISPLAY_CLEAR_ST, ENTRY_MODE_ST, NORMAL_ST);
     signal display_st       : display_st_t;
-    
+
 
 
 begin

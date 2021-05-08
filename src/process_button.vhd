@@ -16,7 +16,7 @@ entity process_button is
 end entity;
 
 
-architecture rtl of process button is
+architecture rtl of process_button is
 
     type button_st_t is (WAIT_PRESS_ST, WAIT_RELEASE_ST);
     signal button_st                : button_st_t;
@@ -25,7 +25,7 @@ architecture rtl of process button is
     signal press_count              : unsigned range 0 to LONG_PRESS_CYCLES-1;
 
 begin
-    -- short press detected < long_press length 
+    -- short press detected < long_press length
     -- long press detected >= long_press length
 
     p_rst: process(clk)
@@ -67,6 +67,7 @@ begin
                 end if;
 
             end if;
+        end if;
     end process;
 
 end architecture;

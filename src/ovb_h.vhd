@@ -108,7 +108,7 @@ package ovb_h is
     constant PSV_SEL_TABLE: psv_sel_array_t := (
     --   Current        Next            Previous
         (SET_PRESS,     SET_TIDAL_U,    SET_VENT),
-        (SET_TIDAL_U,   SET_TIDAL_L,    SET_IE_RATIO),
+        (SET_TIDAL_U,   SET_TIDAL_L,    SET_PRESS),
         (SET_TIDAL_L,   SET_APNEA_T,    SET_TIDAL_U),
         (SET_APNEA_T,   SET_FIO2,       SET_TIDAL_L),
         (SET_FIO2,      SET_VENT,       SET_APNEA_T),
@@ -183,7 +183,7 @@ package body ovb_h is
             when '6' => return x"36";
             when '7' => return x"37";
             when '8' => return x"38";
-            when '9' => return x"39"; 
+            when '9' => return x"39";
             when ':' => return x"3A";
             when ';' => return x"3B";
             when '<' => return x"3C";
@@ -208,14 +208,14 @@ package body ovb_h is
             when 'O' => return x"4F";
             when 'P' => return x"50";
             when 'Q' => return x"51";
-            when 'R' => return x"52"; 
-            when 'S' => return x"53"; 
-            when 'T' => return x"54"; 
+            when 'R' => return x"52";
+            when 'S' => return x"53";
+            when 'T' => return x"54";
             when 'U' => return x"55";
-            when 'V' => return x"56"; 
+            when 'V' => return x"56";
             when 'W' => return x"57";
             when 'X' => return x"58";
-            when 'Y' => return x"59"; 
+            when 'Y' => return x"59";
             when 'Z' => return x"5A";
             when '[' => return x"5B";
             when ']' => return x"5D";
@@ -280,7 +280,7 @@ package body ovb_h is
             when x"36" => return '6';
             when x"37" => return '7';
             when x"38" => return '8';
-            when x"39" => return '9'; 
+            when x"39" => return '9';
             when x"3A" => return ':';
             when x"3B" => return ';';
             when x"3C" => return '<';
@@ -305,14 +305,14 @@ package body ovb_h is
             when x"4F" => return 'O';
             when x"50" => return 'P';
             when x"51" => return 'Q';
-            when x"52" => return 'R'; 
-            when x"53" => return 'S'; 
-            when x"54" => return 'T'; 
+            when x"52" => return 'R';
+            when x"53" => return 'S';
+            when x"54" => return 'T';
             when x"55" => return 'U';
-            when x"56" => return 'V'; 
+            when x"56" => return 'V';
             when x"57" => return 'W';
             when x"58" => return 'X';
-            when x"59" => return 'Y'; 
+            when x"59" => return 'Y';
             when x"5A" => return 'Z';
             when x"5B" => return '[';
             when x"5D" => return ']';

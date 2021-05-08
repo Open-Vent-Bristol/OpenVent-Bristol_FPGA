@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use ovb_h.all;
+use work.ovb_h.all;
 
 
 entity button_inputs is
@@ -46,22 +46,22 @@ begin
 
     g_buttons: for i in 0 to buttons'left generate
 
-        i_btn_sync: entity work.sync_ff 
+        i_btn_sync: entity work.sync_ff
             port map (
-                clk => clk, 
-                rst => rst, 
-                ce  => '1', 
-                d   => buttons(i), 
+                clk => clk,
+                rst => rst,
+                ce  => '1',
+                d   => buttons(i),
                 q   => buttons_sync(i)
             );
-            
-        i_process_button: entity work.process_button 
+
+        i_process_button: entity work.process_button
             port map (
-                clk         => clk, 
-                rst         => rst, 
-                ce          => ce, 
-                button      => buttons_sync(i), 
-                short_press => short_press(i), 
+                clk         => clk,
+                rst         => rst,
+                ce          => ce,
+                button      => buttons_sync(i),
+                short_press => short_press(i),
                 long_press  => long_press(i)
             );
 
