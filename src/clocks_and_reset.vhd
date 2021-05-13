@@ -16,13 +16,13 @@ entity clocks_and_reset is
     );
 end entity;
 
-architecture clocks_and_reset is
+architecture rtl of clocks_and_reset is
     signal rst_cnt  : natural range 0 to 15 := 0;
     signal locked   : std_logic;
     signal arst     : std_logic;
     signal hb_cnt   : natural range 0 to 2**25-1;
 begin
-    
+
     p_rst: process(clk)
     begin
         if rising_edge(clk) then
@@ -41,7 +41,7 @@ begin
     end process;
 
     g_pll: if BOARD = OVB generate
-        
+
         i_pll: PLL
         generic map (
             FCLKIN => "33.554",
@@ -98,6 +98,7 @@ begin
                         hb_cnt <= hb_cnt + 1;
                     end if;
                 end if;
+            end if;
         end process;
 
     else generate
@@ -157,6 +158,7 @@ begin
                         hb_cnt <= hb_cnt + 1;
                     end if;
                 end if;
+            end if;
         end process;
 
     end generate;
