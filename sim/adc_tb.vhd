@@ -23,7 +23,7 @@ architecture Behavioral of adc_tb is
     constant Cap        : real    := 3.03E-9; --Capacitor
     constant dt         : real    := 1.0/fclk;
 
-    constant ratio      : real    := real(2 ** N_bits)/3.3; --For data display
+    constant ratio      : real    := real(2**N_bits)/3.3; --For data display
 
     --signal vdiff            : std_logic_vector(11 downto 0);
     --signal B                : real := 0.0;              --Input wave angle in radians

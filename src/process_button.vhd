@@ -22,7 +22,7 @@ architecture rtl of process_button is
     signal button_st                : button_st_t;
 
     constant LONG_PRESS_CYCLES      : integer := 80;    -- 4 seconds at 50ms
-    signal press_count              : unsigned range 0 to LONG_PRESS_CYCLES-1;
+    signal press_count              : integer range 0 to LONG_PRESS_CYCLES-1;
 
 begin
     -- short press detected < long_press length
@@ -33,7 +33,7 @@ begin
         if rising_edge(clk) then
             if rst = '1' then
                 button_st <= WAIT_PRESS_ST;
-                press_count <= (others=>'0');
+                press_count <= 0;
                 short_press <= '0';
                 long_press <= '0';
             elsif ce = '1' then
@@ -51,7 +51,7 @@ begin
                 end case;
 
                 if (button_st = WAIT_PRESS_ST) or (button_st = WAIT_RELEASE_ST and button = '0') then
-                    press_count <= (others=>'0');
+                    press_count <= 0;
                 elsif button_st = WAIT_RELEASE_ST then
                     if press_count < LONG_PRESS_CYCLES-1 then
                         press_count <= press_count + 1;

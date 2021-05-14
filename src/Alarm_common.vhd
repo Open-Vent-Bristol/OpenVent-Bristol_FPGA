@@ -40,7 +40,7 @@ use IEEE.MATH_REAL.ALL;
 
 -- Library Alarm_Common;
 
-PACKAGE Common IS
+PACKAGE Alarm_common IS
 
   -- Alarm LED related constants
   constant Tidal_Vol_LED		: natural := 0;
@@ -173,9 +173,9 @@ PACKAGE Common IS
 
   function log2 (x : positive) return natural; -- same as log2floor, deprecated
 
-END Common;
+END Alarm_common;
 
-PACKAGE BODY Common IS
+PACKAGE BODY Alarm_common IS
 
   function PosEdge (Val, Val_D : STD_LOGIC) return Boolean is
   begin
@@ -240,7 +240,7 @@ PACKAGE BODY Common IS
   end log2floor;
 
   function log2 (x : positive) return natural is
-	variable temp, log: natural;
+--	variable temp, log: natural;
   begin
 -- 	temp := x / 2;
 -- 	log := 0;
@@ -252,4 +252,4 @@ PACKAGE BODY Common IS
 	return log2floor(x);
   end function log2;
 
-END Common;
+END Alarm_common;
