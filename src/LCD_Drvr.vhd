@@ -1,18 +1,18 @@
 -- VHDL created by Arius, Inc  copyright 2020
--- Permission is hereby granted, free of charge, to any person obtaining a 
--- copy of this software and associated documentation files (the "Software"), 
--- to deal in the Software without restriction, including without limitation 
--- the rights to use, copy, modify, merge, publish, distribute, sublicense, 
--- and/or sell copies of the Software, and to permit persons to whom the 
+-- Permission is hereby granted, free of charge, to any person obtaining a
+-- copy of this software and associated documentation files (the "Software"),
+-- to deal in the Software without restriction, including without limitation
+-- the rights to use, copy, modify, merge, publish, distribute, sublicense,
+-- and/or sell copies of the Software, and to permit persons to whom the
 -- Software is furnished to do so, subject to the following conditions:
--- The above copyright notice and this permission notice shall be included in 
+-- The above copyright notice and this permission notice shall be included in
 -- all copies or substantial portions of the Software.
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
--- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
--- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
--- THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
--- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
--- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+-- THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+-- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 -- DEALINGS IN THE SOFTWARE.
 --------------------------------------------------------------------------------
 -- Company: Arius, Inc
@@ -28,12 +28,12 @@
 --
 -- Additional Comments:
 --
--- Notes:  
+-- Notes:
 -- LCD_Drvr - SYNTHESIZABLE CODE ONLY
---   Refresh the LCD every 5 ms 
--- LCD_Drvr_tb - test bench verify  
---   verify 
---   verify 
+--   Refresh the LCD every 5 ms
+-- LCD_Drvr_tb - test bench verify
+--   verify
+--   verify
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -46,7 +46,7 @@ entity LCD_Drvr is
     generic (
         CLK_HZ    : REAL     := 33.554432E6; -- 2^25
         Mem_Depth : POSITIVE := 2048
-	);
+    );
     port (
         Clk        : in STD_LOGIC;
 
@@ -62,8 +62,8 @@ entity LCD_Drvr is
         LCD_E_Lft  : out STD_LOGIC := '0';
         LCD_E_Rgt  : out STD_LOGIC := '0';
         LCD_Data   : inout unsigned(7 downto 0)
-	);
-  end LCD_Drvr;
+    );
+end LCD_Drvr;
 
 -- LCD timing - Newhaven NHD-0216K1Z-FL-YBW data sheet, page 7 - write
 -- Controller - Sitronix ST7066U data sheet, page 32
@@ -172,123 +172,123 @@ architecture behav of LCD_Drvr is
     signal Inst_Carry   : STD_LOGIC;
     signal LCD_RS_p     : STD_LOGIC;
     signal LCD_Mem_Data : NATURAL;
-  type Cmds_State_t is (Cmd_Idl, F_Set_1, F_Set_2, Disp_ON, Ent_Mod,
-						DDAddr_Top, DDData_Top,
-						DDAddr_Bot, DDData_Bot,
-						CGR_Adr, CGR_Data);
+    type Cmds_State_t is (Cmd_Idl, F_Set_1, F_Set_2, Disp_ON, Ent_Mod,
+        DDAddr_Top, DDData_Top,
+        DDAddr_Bot, DDData_Bot,
+        CGR_Adr, CGR_Data);
     signal Inst_State   : Cmds_State_t;
     constant Page_Width : POSITIVE := LCD_Rd_Addr'length - Addr_Cntr'length - 2;
 begin
 
     LCD_Timer : (Inst_Carry, Inst_Next) <= ("0" & Inst_Cntr) + 1;
     LCD_Inst : process (Clk) is
-  begin
-  	if (rising_edge(Clk)) then
-	  if (Inst_State /= Cmd_Idl) then
+    begin
+        if (rising_edge(Clk)) then
+            if (Inst_State /= Cmd_Idl) then
                 Inst_Cntr <= Inst_Next;
                 LCD_E_Lft <= '1' when (Inst_Next(10 downto 9) = "01") else
                     '0';
                 LCD_E_Rgt <= '1' when (Inst_Next(10 downto 9) = "11") else
                     '0';
-	  end if;
-	end if;
-  end process LCD_Inst;
+            end if;
+        end if;
+    end process LCD_Inst;
 
     LCD_Cntrl : process (Clk) is
-  begin
-  	if (rising_edge(Clk)) then
-	  if (Inst_Carry or Five_ms_En) then
-		-- LCD_Row		<= '0';
-		case Inst_State is
-		  when Cmd_Idl => -- equivalent to "if Five_ms_En"
+    begin
+        if (rising_edge(Clk)) then
+            if (Inst_Carry or Five_ms_En) then
+                -- LCD_Row		<= '0';
+                case Inst_State is
+                    when Cmd_Idl => -- equivalent to "if Five_ms_En"
                         Inst_State <= F_Set_1;
                         LCD_RS_p   <= '0';
-		  when F_Set_1 =>
+                    when F_Set_1 =>
                         Inst_State <= F_Set_2;
                         LCD_RS_p   <= '0';
-		  when F_Set_2 =>
+                    when F_Set_2 =>
                         Inst_State <= Disp_ON;
                         LCD_RS_p   <= '0';
-		  when Disp_ON =>
+                    when Disp_ON =>
                         Inst_State <= Ent_Mod;
                         LCD_RS_p   <= '0';
-		  when Ent_Mod =>
+                    when Ent_Mod =>
                         Inst_State <= DDAddr_Top;
                         LCD_RS_p   <= '0';
-		  when DDAddr_Top =>
+                    when DDAddr_Top =>
                         Inst_State <= DDData_Top;
                         LCD_RS_p   <= '1';
-		  when DDData_Top =>
+                    when DDData_Top =>
                         Inst_State <= DDAddr_Bot when (Addr_Cntr = 15);
                         Addr_Cntr  <= Addr_Cntr + 1;
                         LCD_RS_p   <= '0' when (Addr_Cntr = 15) else
                             '1';
-		  when DDAddr_Bot =>
+                    when DDAddr_Bot =>
                         Inst_State <= DDData_Bot;
                         LCD_RS_p   <= '1';
-			-- LCD_Row		<= '1';  -- LCD address for bottom row
-		  when DDData_Bot =>
+                        -- LCD_Row		<= '1';  -- LCD address for bottom row
+                    when DDData_Bot =>
                         Inst_State <= CGR_Adr when (Addr_Cntr = 15);
                         Addr_Cntr  <= Addr_Cntr + 1;
                         LCD_RS_p   <= '0' when (Addr_Cntr = 15) else
                             '1';
-			-- LCD_Row		<= '1';  -- LCD address for bottom row
-		  when CGR_Adr =>
+                        -- LCD_Row		<= '1';  -- LCD address for bottom row
+                    when CGR_Adr =>
                         Inst_State <= CGR_Data;
                         LCD_RS_p   <= '1';
-		  when CGR_Data =>
+                    when CGR_Data =>
                         Inst_State <= Cmd_Idl when (Addr_Cntr = 15);
                         Addr_Cntr  <= Addr_Cntr + 1;
                         LCD_RS_p   <= '0' when (Addr_Cntr = 15) else
                             '1';
-		end case;
-	  end if;
-	end if;
-  end process LCD_Cntrl;
+                end case;
+            end if;
+        end if;
+    end process LCD_Cntrl;
 
-  -- LCD refresh memory address, see memory map above
+    -- LCD refresh memory address, see memory map above
     LCD_Rd_Addr <= Inst_Cntr(Inst_Cntr'high) & -- Left/Right selection
-  					to_unsigned(Page_Sel, Page_Width) & LCD_Row & Addr_Cntr;
+        to_unsigned(Page_Sel, Page_Width) & LCD_Row & Addr_Cntr;
 
     LCD_BMem : process (Clk) is
         variable LCD_Mem : integer_vector(0 to Mem_Depth - 1) :=
-        (others => CHARACTER'pos('Ã¿'));
+        (others => CHARACTER'pos('�'));
         variable Addr_M_Wr, Addr_M_Rd : NATURAL range 0 to Mem_Depth - 1;
-  begin
-  	if (rising_edge(Clk)) then
+    begin
+        if (rising_edge(Clk)) then
             Addr_M_Wr := to_integer(Mem_Addr); -- capture write address
-	  if (Mem_WE) then
+            if (Mem_WE) then
                 LCD_Mem(Addr_M_Wr) := to_integer(Mem_Data);
-	  end if;
+            end if;
             Addr_M_Rd := to_integer(LCD_Rd_Addr); -- capture read address
             LCD_MData <= to_unsigned(LCD_Mem(Addr_M_Rd), LCD_Data'length);
-	end if;
-  end process LCD_BMem;
+        end if;
+    end process LCD_BMem;
 
     LCD_Out : process (Clk) is
-  begin
-  	if (rising_edge(Clk)) then
-	  with Inst_State select LCD_RS <= 
-	  		'1' when DDData_Top | DDData_Bot | CGR_Data, '0' when others;
-	  LCD_Row	<= '1' when (Inst_State = DDData_Bot) else '0';
-	  -- Select the commands or data for the LCD data input
-	  with Inst_State select LCD_Data <=
-  			LCD_MData		when DDData_Top | DDData_Bot | CGR_Data,
-			FuncSetCmd		when F_Set_1 | F_Set_2,
-			DispOnCmd		when Disp_ON,
-			EntryModeCmd	when Ent_Mod, 
-			DDRTopAddrCmd	when DDAddr_Top,
-			DDRBotAddrCmd	when DDAddr_Bot,
-			CGRAddrCmd		when CGR_Adr,
-			DunCareCmd		when Cmd_Idl;
-	end if;
-  end process LCD_Out;
+    begin
+        if (rising_edge(Clk)) then
+            case Inst_State is
+                when DDData_Top | DDData_Bot | CGR_Data => LCD_RS <= '1';
+                when others                             => LCD_RS <= '0';
+            end case;
+            case Inst_State is
+                when DDData_Bot => LCD_Row <= '1';
+                when others     => LCD_Row <= '0';
+            end case;
+
+            -- Select the commands or data for the LCD data input
+            case Inst_State is
+                when DDData_Top | DDData_Bot | CGR_Data => LCD_Data <= LCD_MData;
+                when F_Set_1 | F_Set_2                  => LCD_Data <= FuncSetCmd;
+                when Disp_ON                            => LCD_Data <= DispOnCmd;
+                when Ent_Mod                            => LCD_Data <= EntryModeCmd;
+                when DDAddr_Top                         => LCD_Data <= DDRTopAddrCmd;
+                when DDAddr_Bot                         => LCD_Data <= DDRBotAddrCmd;
+                when CGR_Adr                            => LCD_Data <= CGRAddrCmd;
+                when Cmd_Idl                            => LCD_Data <= DunCareCmd;
+            end case;
+        end if;
+    end process LCD_Out;
 
 end behav; -- LCD_Drvr
-
---------------------------------------------------------------------------------
---  Test bench for LCD_Drvr
---
---  Provide Clk, MilliSec_En, Mem_Data, Mem_Addr, Mem_WE, Page_Sel
---  Verify LCD timing and output, flagging changes
---------------------------------------------------------------------------------
