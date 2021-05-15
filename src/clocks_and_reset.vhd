@@ -94,7 +94,7 @@ begin
             DYN_FBDIV_SEL    => "false",
             FBDIV_SEL        => 0,
             DYN_ODIV_SEL     => "false",
-            ODIV_SEL         => 8,
+            ODIV_SEL         => 16,
             PSDA_SEL         => "0000",
             DYN_DA_EN        => "false",
             DUTYDA_SEL       => "1000",
@@ -132,7 +132,8 @@ begin
         begin
             if rising_edge(clk) then
                 if rst = '1' then
-                    hb <= '0';
+                    hb     <= '0';
+                    hb_cnt <= 0;
                 else
                     if hb_cnt >= 2**25 - 1 then
                         hb_cnt <= 0;
@@ -193,7 +194,8 @@ begin
             begin
                 if rising_edge(clk) then
                     if rst = '1' then
-                        hb <= '0';
+                        hb     <= '0';
+                        hb_cnt <= 0;
                     else
                         if hb_cnt >= 33333333 - 1 then
                             hb_cnt <= 0;
