@@ -38,6 +38,8 @@ use ieee.std_logic_1164.all;
 Use ieee.numeric_std.all;
 use IEEE.MATH_REAL.ALL;
 
+use work.ovb_h.all;
+
 -- Library Alarm_Common;
 
 PACKAGE Alarm_common IS
@@ -101,10 +103,9 @@ PACKAGE Alarm_common IS
   constant LowPriTones			: Alarm_Type :=
   	  (Tech_Low_Sel | Power_Low_Sel => '1', others => '0');
 
-  constant CLK_HZ			: real := 33554432.0; -- 2^25 MHz, 50 ppm
-  constant I2C_Clk_MAX_Cnt	: integer := integer(CLK_HZ/524000.0)-1; -- 524 kHz
+  constant I2C_Clk_MAX_Cnt	: integer := integer(FREQUENCY/524000.0)-1; -- 524 kHz
   constant Five_ms_MAX_Cnt	: integer := -1 +   -- 2,620
-  					integer(CLK_HZ/real(200 * (I2C_Clk_MAX_Cnt + 1))); -- 5 ms
+  					integer(FREQUENCY/real(200 * (I2C_Clk_MAX_Cnt + 1))); -- 5 ms
   constant Debounce_MS	: integer := 15;  -- 80 ms bounce time by 5ms, 0 based
   constant Hold_ms		: integer := 49; -- 250 ms hold enable by 5ms, 0 based
   constant Hold_Max		: integer := integer(3000.0/250.0)-1;  -- 3 second hold

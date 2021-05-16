@@ -12,14 +12,13 @@ library ieee;
 use ieee.NUMERIC_STD.all;
 use ieee.std_logic_1164.all;
 use work.Alarm_Common.all;
+use work.ovb_h.all;
 
 entity MilliSec_tb is
 end MilliSec_tb;
 
 architecture TB_ARCH of MilliSec_tb is
-    constant CLK_Hz_tb    : real      := 33554432.0;          -- 2^25 MHz
-    constant Clk_Half_Per : TIME      := 500 ms / CLK_Hz_tb;  -- 14901 ps; --
-    constant Clk_Period   : TIME      := (1 sec / CLK_Hz_tb); -- 2^25 MHz clock
+    constant Clk_Half_Per : TIME      := CLOCK_PERIOD_t / 2;  -- 14901 ps; --
     signal Clk            : STD_LOGIC := '1';
     signal MHz4_En        : STD_LOGIC;
     signal I2C_Clk_En     : STD_LOGIC;
@@ -44,7 +43,7 @@ architecture TB_ARCH of MilliSec_tb is
             Prev_Edge := now;
         elsif falling_edge(Pulse) then -- compare pulse width to one clock
             test := (now - Prev_Edge);
-            assert (abs(test - Clk_Period) < 1 ps)
+            assert (abs(test - CLOCK_PERIOD_t) < 1 ps)
             report Pulse_Name & " width failed " & TIME'image(test)
                 & ", start " & TIME'image(Prev_Edge) & ", end " & TIME'image(now);
         end if;
@@ -57,13 +56,13 @@ begin
     test_MHz4 : process (MHz4_En) is
         variable Prev_Edge : TIME := 0 ns;
     begin -- 8 clocks period, 4.194,304 MHz, 238.419 ns
-        TestEn (MHz4_En, (Clk_Period * 4), 15 ns, MHz4_En'Simple_name, Prev_Edge);
+        TestEn (MHz4_En, (CLOCK_PERIOD_t * 4), 15 ns, MHz4_En'Simple_name, Prev_Edge);
     end process test_MHz4;
 
     test_I2C : process (I2C_Clk_En) is
         variable Prev_Edge : TIME := 0 ns;
     begin -- 64 clocks period, 524,288 Hz, 1.907,348,632 us, window of half clock
-        TestEn (I2C_Clk_En, (Clk_Period * 64),
+        TestEn (I2C_Clk_En, (CLOCK_PERIOD_t * 64),
         Clk_Half_Per, "I2C_Clk_En", Prev_Edge);
     end process test_I2C;
 

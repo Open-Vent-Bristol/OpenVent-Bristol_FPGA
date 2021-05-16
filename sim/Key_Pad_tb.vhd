@@ -10,15 +10,13 @@ library ieee;
 use ieee.NUMERIC_STD.all;
 use ieee.std_logic_1164.all;
 use work.Alarm_common.all;
+use work.ovb_h.all;
 
 entity Key_Pad_tb is
-    -- Generic declarations of the tested unit
-    generic (
-        CLK_HZ : REAL := 33.554432E6);
 end Key_Pad_tb;
 
 architecture TB_ARCH of Key_Pad_tb is
-    constant Clock_Half_Period : TIME      := 500 ms / CLK_HZ; -- 14901 ps; --
+    constant Clock_Half_Period : TIME      := CLOCK_PERIOD_t / 2; -- 14901 ps; --
     -- type Button_rng            is range 3 downto 0;
     -- subtype ButtonSel_type    is natural range Button_rng;
     signal Clk                 : STD_LOGIC := '1';
@@ -102,7 +100,7 @@ begin
 
     Keys_UUT: ENTITY work.Key_Pad
         GENERIC map (
-            CLK_HZ => CLK_HZ
+            CLK_HZ => FREQUENCY
         )
         port map (
             Clk          => Clk,

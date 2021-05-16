@@ -3,25 +3,24 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.MATH_REAL.all;
 
+use work.ovb_h.all;
+
 entity adc_tb is
 end adc_tb;
 
 architecture Behavioral of adc_tb is
 
-    constant CLK_period : TIME    := 15 ns;
     -- When adjusting output bit resolution, N_bits must be adjusted to match resolution
     constant N_bits     : INTEGER := 12;
 
     constant A          : real    := 1.5; --Input wave amplitude
     constant C          : real    := 1.65;
-    constant fclk       : real    := 33.554432E6; --System clock frequency
     constant fs         : real    := 50.0;        --Sine wave frequency
-    constant i          : real    := fclk/fs;
+    constant i          : real    := FREQUENCY/fs;
     constant rad        : real    := math_2_pi/i;
     constant vref       : real    := 1.65;      --Reference voltage for comparator
     constant R          : real    := 10.0E3;    --Input and feedback resistor
     constant Cap        : real    := 3.03E-9; --Capacitor
-    constant dt         : real    := 1.0/fclk;
 
     constant ratio      : real    := real(2**N_bits)/3.3; --For data display
 
@@ -40,9 +39,9 @@ begin
 
     ADC_UUT : entity work.sigmadelta_adc
         generic map (
-        ADC_WIDTH      => 12, -- ADC Convertor Bit Precision
-        ACCUM_BITS     => 12, -- 2^ACCUM_BITS is decimation rate of accumulator
-        LPF_DEPTH_BITS => 3   -- 2^LPF_DEPTH_BITS is decimation rate of averager
+        ADC_WIDTH      => N_bits, -- ADC Convertor Bit Precision
+        ACCUM_BITS     => 12,     -- 2^ACCUM_BITS is decimation rate of accumulator
+        LPF_DEPTH_BITS => 3       -- 2^LPF_DEPTH_BITS is decimation rate of averager
         )
         port map
         (
@@ -57,9 +56,9 @@ begin
     CLK_process : process
     begin
         CLK <= '0';
-        wait for CLK_period;
+        wait for CLOCK_PERIOD_t;
         CLK <= '1';
-        wait for CLK_period;
+        wait for CLOCK_PERIOD_t;
     end process;
 
     RST_process : process
@@ -90,7 +89,7 @@ begin
         end if;
 
         I_rin := (vsin - vcap)/R;
-        dv    := (I_rin + I_fb) * (dt/Cap);
+        dv    := (I_rin + I_fb) * (CLOCK_PERIOD/Cap);
         vcap  := vcap + dv;
 
         if vcap < vref then

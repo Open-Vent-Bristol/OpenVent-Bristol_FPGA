@@ -42,6 +42,7 @@ use ieee.std_logic_1164.all;
 Use ieee.numeric_std.all;
 use IEEE.MATH_REAL.ALL;
 use work.Alarm_common.all;
+use work.ovb_h.all;
 
 -- Monitor keypad and debounce inputs.  Also provide 3 sec hold detect.
 -- Button outputs activate after timeout, hold value until button is released.
@@ -49,7 +50,7 @@ use work.Alarm_common.all;
 -- tick on press and boop on hold.
 ENTITY Key_Pad IS
   GENERIC (
-	CLK_HZ : REAL := 33.554432E6 -- 2^25
+	CLK_HZ : REAL := FREQUENCY -- 2^25
   );
   port(
 	Clk				: in  std_logic;

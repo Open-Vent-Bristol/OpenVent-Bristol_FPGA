@@ -10,16 +10,14 @@ use ieee.NUMERIC_STD.all;
 use ieee.std_logic_1164.all;
 use IEEE.MATH_REAL.all;
 use work.Alarm_common.all;
+use work.ovb_h.all;
 
 entity LCD_Drvr_tb is
-    -- Generic declarations of the tested unit
-    generic (
-        CLK_HZ : REAL := 33.554432E6);
 end LCD_Drvr_tb;
 
 architecture TB_ARCH of LCD_Drvr_tb is
     -- LCD_Drvr I/Os
-    constant Clock_Half_Period        : TIME      := 500 ms / CLK_HZ; -- 14901 ps; --
+    constant Clock_Half_Period        : TIME      := CLOCK_PERIOD_t / 2; -- 14901 ps; --
     constant Mem_Depth                : POSITIVE  := 2048;
     signal StopClock                  : BOOLEAN   := false;
     signal Clk                        : STD_LOGIC := '1';
@@ -62,7 +60,7 @@ begin
     end process Disp_ROM_Init;
 
     Timer_p : process (Clk) is -- generate 5 ms enable
-        constant ms5cnt_max : INTEGER := INTEGER(CLK_HZ * 0.005);
+        constant ms5cnt_max : INTEGER := INTEGER(FREQUENCY * 0.005);
         variable timer      : INTEGER range 0 to ms5cnt_max-1 := (ms5cnt_max-1);
     begin
         if rising_edge(Clk) then
@@ -453,7 +451,7 @@ begin
 
     LCD_UUT : entity work.LCD_Drvr
         generic map (
-            CLK_HZ    => CLK_HZ,
+            CLK_HZ    => FREQUENCY,
             Mem_Depth => Mem_Depth
         )
         port map (

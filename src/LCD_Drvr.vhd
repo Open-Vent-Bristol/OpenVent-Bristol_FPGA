@@ -41,10 +41,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use IEEE.MATH_REAL.all;
 use work.Alarm_common.all;
+use work.ovb_h.all;
 
 entity LCD_Drvr is
     generic (
-        CLK_HZ    : REAL     := 33.554432E6; -- 2^25
+        CLK_HZ    : REAL     := FREQUENCY; -- 2^25
         Mem_Depth : POSITIVE := 2048
     );
     port (

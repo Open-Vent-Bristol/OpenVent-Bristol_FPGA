@@ -5,8 +5,9 @@ use ieee.numeric_std.all;
 
 package ovb_h is
 
-    constant FREQUENCY                          : real := 50.0e6;
-    constant CLOCK_PERIOD                       : real := 1.0/FREQUENCY;
+    constant FREQUENCY                          : real := 33554432.0; -- 2^25 MHz, 50 ppm
+    constant CLOCK_PERIOD                       : real := 1.0 / FREQUENCY;
+    constant CLOCK_PERIOD_t                     : time := 1 sec / FREQUENCY;
 
     constant DISPLAY_MIN_PERIOD                 : real := 1.2e-6;
     constant DISPLAY_MIN_PERIOD_CYCLES          : integer := integer((2.0*1.2e-6)/CLOCK_PERIOD);
