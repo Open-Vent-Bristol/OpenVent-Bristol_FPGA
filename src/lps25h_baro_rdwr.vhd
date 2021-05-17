@@ -19,7 +19,7 @@ ENTITY LPS25H_baro_RDWR IS
 architecture SPI_SM of LPS25h_baro_RDWR is
 	type state_TYPE is (S0, S1 ,S2 ,S3 ,Y0 ,Y1 ,Y2 ,Y3 ,Y4 ,Y5 ,Y6 ,Y7,
 	Y8 ,Y9 ,Y10 ,Y11 ,Y12 ,Y13 ,Y14 ,Y15 ,Y16 ,Y17 ,Y18);
-	
+
 	CONSTANT ICR2 : std_logic_vector(8 downto 0) := O"077";
 	CONSTANT RSCNF : std_logic_vector(8 downto 0) := O"020";
 	CONSTANT CR1 : std_logic_vector(8 downto 0) := O"040";
@@ -39,13 +39,13 @@ architecture SPI_SM of LPS25h_baro_RDWR is
 --	CONSTANT TBD : std_logic_vector(8 downto 0) := "00100100";
 	SIGNAL RD							:std_logic_vector(7 downto 0);
 	signal pres_state, next_state		:state_TYPE;
-	signal INVCLK, DATA_EN, BD, BCLK, FN, CS	:std_logic;						
+	signal CS	:std_logic;
 	SIGNAL A7:BOOLEAN;
 BEGIN
 
 
 
-SYNC: PROCESS(RST_L,SER_CLK,add)
+SYNC: PROCESS(RST_L,SER_CLK)
 
 begin
 if (RST_L = '0') THEN
@@ -63,7 +63,7 @@ BEGIN
 
 CASE PRES_STATE IS
 
-		WHEN S0 =>	
+		WHEN S0 =>
 		  case 	add is
 			when ICR2 => next_state <= s1;
 			when RSCNF => next_state <= s1;
@@ -86,8 +86,8 @@ CASE PRES_STATE IS
 			--when tadch => next_state <= s1;
 			--when tadcl => next_state <= s1;
 			when others => next_state <= S0;
-			end case;	
-		
+			end case;
+
 
 		WHEN S1 => NEXT_STATE <= S2;
 
@@ -95,47 +95,47 @@ CASE PRES_STATE IS
 
 		WHEN S3 => NEXT_STATE <= Y0;
 
-		WHEN Y0 => NEXT_STATE <= Y1;	
+		WHEN Y0 => NEXT_STATE <= Y1;
 
-		WHEN Y1 => NEXT_STATE <= Y2;	
+		WHEN Y1 => NEXT_STATE <= Y2;
 
-		WHEN Y2 => NEXT_STATE <= Y3;	
+		WHEN Y2 => NEXT_STATE <= Y3;
 
-		WHEN Y3 => NEXT_STATE <= Y4;	
+		WHEN Y3 => NEXT_STATE <= Y4;
 
-		WHEN Y4 => NEXT_STATE <= Y5;	
+		WHEN Y4 => NEXT_STATE <= Y5;
 
-		WHEN Y5 => NEXT_STATE <= Y6;	
+		WHEN Y5 => NEXT_STATE <= Y6;
 
-		WHEN Y6 => NEXT_STATE <= Y7;	
+		WHEN Y6 => NEXT_STATE <= Y7;
 
-		WHEN Y7 => NEXT_STATE <= Y8;	
+		WHEN Y7 => NEXT_STATE <= Y8;
 
-		WHEN Y8 => NEXT_STATE <= Y9;	
+		WHEN Y8 => NEXT_STATE <= Y9;
 
-		WHEN Y9 => NEXT_STATE <= Y10;	
+		WHEN Y9 => NEXT_STATE <= Y10;
 
-		WHEN Y10 => NEXT_STATE <= Y11;	
+		WHEN Y10 => NEXT_STATE <= Y11;
 
-		WHEN Y11 => NEXT_STATE <= Y12;	
+		WHEN Y11 => NEXT_STATE <= Y12;
 
-		WHEN Y12 => NEXT_STATE <= Y13;	
+		WHEN Y12 => NEXT_STATE <= Y13;
 
-		WHEN Y13 => NEXT_STATE <= Y14;	
+		WHEN Y13 => NEXT_STATE <= Y14;
 
-		WHEN Y14 => NEXT_STATE <= Y15;	
+		WHEN Y14 => NEXT_STATE <= Y15;
 
-		WHEN Y15 => NEXT_STATE <= Y16;	
+		WHEN Y15 => NEXT_STATE <= Y16;
 
-		WHEN Y16 => NEXT_STATE <= Y17;	
+		WHEN Y16 => NEXT_STATE <= Y17;
 
-		WHEN Y17 => NEXT_STATE <= Y18;	
+		WHEN Y17 => NEXT_STATE <= Y18;
 
-		WHEN Y18 => NEXT_STATE <= S0;	
+		WHEN Y18 => NEXT_STATE <= S0;
 
 		END CASE;
 	END PROCESS COMB;
-latchs: PROCESS(pres_state,ser_clk,ADD(7),rd)
+latchs: PROCESS(pres_state,ser_clk,ADD(7),rd, BARO_OUT, A7, RD)
 
 begin
 
@@ -175,20 +175,20 @@ spi_data <= RD;
 END PROCESS LATCHS;
 
 
-outputs: process (pres_state, DATA_EN, BD, BCLK,cs,add,ser_clk,din)
+outputs: process (pres_state,cs,add,ser_clk,din)
 VARIABLE  BARODIN :std_logic;
 VARIABLE clken	:std_logic;
 VARIABLE FN	:std_logic;
 
-begin 
+begin
 
-  state_driven_outputs: case pres_state is 
+  state_driven_outputs: case pres_state is
 
 	when S0 => BARODIN	 :='0';clken := '0'; FN := '0';baro_ser_clk <= '1';FIN <= '0';BARO_DIN <=   '0'; cs <= '1';CS_L <= cs;
 	when S1 => BARODIN	 :='0';clken := '0'; FN := '0';baro_ser_clk <= '1';FIN <= '0';BARO_DIN <=   barodin; cs <= '1';CS_L <= cs;
 
 	when S2 => BARODIN	 :='0';clken := '0'; FN := '0';baro_ser_clk <= '1';FIN <= '0';BARO_DIN <=   barodin; cs <= '1';CS_L <= cs;
-	
+
 	when S3 => BARODIN	 :='0';clken := '0'; FN := '0';baro_ser_clk <= '1';FIN <= '0';BARO_DIN <=   barodin; cs <= '0';CS_L <= cs;
 
 	when Y0 => BARODIN   := ADD(7);clken := '1'; FN := '0';baro_ser_clk <= not ser_clk and clken;FIN <= FN;BARO_DIN <=   barodin; cs <= '0';CS_L <= cs;
@@ -222,7 +222,7 @@ begin
 	when Y14 => BARODIN	 := (DIN(1) and not ADD(7));clken := '1'; FN := '0';baro_ser_clk <= not ser_clk and clken;FIN <= FN;BARO_DIN <=   barodin; cs <= '0';CS_L <= cs;
 
 	when Y15 => BARODIN	 := (DIN(0) and not ADD(7)); clken := '1'; FN := '0';baro_ser_clk <= not ser_clk and clken;FIN <= FN;BARO_DIN <=   barodin; cs <= '0';CS_L <= cs;
-	
+
 	When Y16 => BARODIN	 :='0'; clken := '0'; FN := '0';baro_ser_clk <= '1';FIN <= FN;BARO_DIN <=   barodin; cs <= '0';CS_L <= cs;
 
 	when Y17 => BARODIN	 :='0'; clken := '0'; FN := '1';baro_ser_clk <= '1'; FIN <= FN;BARO_DIN <= '0'; cs <= '1';CS_L <= cs;
@@ -231,14 +231,15 @@ begin
 
 
  	WHEN OTHERS=> clken := '0'; FN := '0';baro_ser_clk <= '1'; FIN <= '0';BARO_DIN <= '0';  cs <= '1';CS_L <= cs;
+	 BARODIN	 :='0'; -- todo check this value. Added to avoid possible latch
 
-  end case state_driven_outputs; 
+  end case state_driven_outputs;
 	--BARO_DIN <=   barodin; --baro_ser_clk <= not ser_clk and clken;
 	--if (not ser_clk and clken) = "1" then baro_ser_clk <= '1' else baro_ser_clk ,='0';
 
 	--FIN <= FN;
 
-end process OUTPUTS; 
+end process OUTPUTS;
 
 
 

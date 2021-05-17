@@ -21,15 +21,13 @@ END lps25h_reformat;
 ARCHITECTURE format OF lps25h_reformat IS
 BEGIN
 format: process(	PRSH_data, PRSL_data, TMPH_data	, PRSXL_data, TMPL_data	 )--RPRSH_data,RPRSL_data,RPRSXL_data,
-begin 
+begin
 Press <= PRSH_data&PRSL_data&PRSXL_data;
 --RPress <= RPRSH_data&RPRSL_data&RPRSXL_data;
 TEMP <= TMPH_data&TMPL_data;
 
-AbsPress <= PRSH_data(6)&PRSH_data(5)&PRSH_data(4)&PRSH_data(3)&PRSH_data(2)&PRSH_data(1)&PRSH_data(0)&PRSL_data&PRSXL_data(7)&PRSXL_data(6)&PRSXL_data(5);
+AbsPress <= PRSH_data(6 downto 0) & PRSL_data & PRSXL_data(7 downto 5);
 --AbsRPress <= RPRSH_data(6)&RPRSH_data(5)&RPRSH_data(4)&RPRSH_data(3)&RPRSH_data(2)&RPRSH_data(1)&RPRSH_data(0)&RPRSL_data&RPRSXL_data(7)&RPRSXL_data(6)&RPRSXL_data(5);
 
 end process format;
 end;
-
-

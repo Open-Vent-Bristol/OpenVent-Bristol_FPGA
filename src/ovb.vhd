@@ -39,10 +39,10 @@ entity ovb is
         -- PB_MUTE                : in    STD_LOGIC;
         -- PB_PLUS                : in    STD_LOGIC;
         -- PB_SEL                 : in    STD_LOGIC;
-        -- SPI2_MISO              : in    STD_LOGIC;
-        -- SPI2_MOSI              : out   STD_LOGIC;
-        -- SPI_SCLK               : out   STD_LOGIC;
-        -- SPI2_PRES_CS           : out   STD_LOGIC;
+        SPI2_MISO              : in    STD_LOGIC;
+        SPI2_MOSI              : out   STD_LOGIC;
+        SPI_SCLK               : out   STD_LOGIC;
+        SPI2_PRES_CS           : out   STD_LOGIC;
         -- SPI1_MISO              : out   STD_LOGIC;
         -- SPI1_MOSI              : in    STD_LOGIC;
         -- SPI1_SCLK              : in    STD_LOGIC;
@@ -123,6 +123,10 @@ architecture rtl of ovb is
     signal I2C_SDA_o            : STD_LOGIC;
     signal I2C_SDA_i            : STD_LOGIC;
     signal I2C_SDA_oen          : STD_LOGIC;
+
+    signal lps25h_press         : STD_LOGIC_VECTOR(23 downto 0);
+    signal lps25h_temp          : STD_LOGIC_VECTOR(15 downto 0);
+    signal lps25h_abspress      : STD_LOGIC_VECTOR(17 downto 0);
 
 begin
 
@@ -304,6 +308,21 @@ begin
         I2C_SDA_i   <= '1' when I2C_SDA_oen = '1' else I2C_SDA_o;
         I2C_SDA_oen <= '1';
 
+    LPS25H_BARO_SPI_i : ENTITY work.lps25h_baro_spi_format
+        PORT MAP
+        (
+            rst_L       => not rst,
+            mstrclk     => clk,
+            baro_out    => SPI2_MISO,
+            BARO_INTR   => '0', -- todo, check if this is needed
+            baro_din    => SPI2_MOSI,
+            baro_serclk => SPI_SCLK,
+            BARO_CSN    => SPI2_PRES_CS, -- the CS of the chip is low-asserted
+            Press       => lps25h_press,
+            Temp        => lps25h_temp,
+            AbsPress    => lps25h_abspress
+        );
+
     process (clk)
     begin
         if rising_edge(clk) then
@@ -315,8 +334,8 @@ begin
                 SPK2_IN1 <= '0';
                 SPK2_IN2 <= '0';
             else
-                SPK1_EN <= or(O2_SENS_DATA & PRES_SENS_VENT_DATA & PRES_SENS_PAT_DATA);
-                SPK2_EN <= or(FLOW_SENS_DRCT_DATA & FLOW_SENS_GAIN_DATA);
+                SPK1_EN <= or(O2_SENS_DATA & PRES_SENS_VENT_DATA & PRES_SENS_PAT_DATA & unsigned(lps25h_press) & unsigned(lps25h_abspress));
+                SPK2_EN <= or(FLOW_SENS_DRCT_DATA & FLOW_SENS_GAIN_DATA & unsigned(lps25h_temp));
                 SPK1_IN1 <= SPK1_HIGH;
                 SPK1_IN2 <= SPK1_LOW_N;
                 SPK2_IN1 <= SPK2_HIGH;

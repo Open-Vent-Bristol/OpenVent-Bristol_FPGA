@@ -13,11 +13,11 @@ ENTITY lps25h_BARO_ADD_SYNC IS
 			ADD						: OUT	STD_LOGIC_VECTOR(8 downto 0);
 			DIN						: OUT	STD_LOGIC_VECTOR(7 downto 0);
 		 	ACLR				: OUT	STD_LOGIC);
-			
+
 	END lps25h_BARO_ADD_SYNC;
 
 	ARCHITECTURE ADD_SM OF lps25h_BARO_ADD_SYNC IS
-		
+
 type state_TYPE is (S0, ICR2A, IRC2B ,RSCNFA ,RSCNFB ,CR1A ,CR1B ,CR2A ,CR2B ,CR3A,CR3B ,CR4A ,CR4B ,TOOLGA ,TOOLGB ,INCFA ,INCFB ,FFCTLA ,FFCTLB ,PRXLA ,PRXLB,
 	PRLA ,PRLB ,PRHA ,PRHB ,TMLA ,TMLB ,TMHA, TMHB ,RFPXLA ,RFPXLB , SWAITA, SWAITB ,RFPLA ,RFPLB ,RFPHA ,RFPHB);
 	signal pres_state, next_state	:state_TYPE;
@@ -37,7 +37,7 @@ begin
 
 	END IF;
 END IF;
-END PROCESS SYNC;	
+END PROCESS SYNC;
 COMB: PROCESS(pres_state,fin,intr,tmr)
 BEGIN
 
@@ -54,7 +54,7 @@ CASE PRES_STATE IS
 		If (FIN = '1')then NEXT_STATE <= IRC2B;
 		else NEXT_STATE <= RSCNFA;
 		end if;
-		
+
 		WHEN RSCNFA =>
 		If (FIN  = '1') then NEXT_STATE <= RSCNFB;
 			else NEXT_STATE <=RSCNFA;
@@ -63,7 +63,7 @@ CASE PRES_STATE IS
 		If (FIN  = '1') then NEXT_STATE <= RSCNFB;
 			else NEXT_STATE <=CR1A;
 			end if;
-	
+
 
 		WHEN CR1A =>
 		If (FIN  = '1') then NEXT_STATE <= CR1B;
@@ -74,8 +74,8 @@ CASE PRES_STATE IS
 		If (FIN  = '1') then NEXT_STATE <= CR1B;
 			else NEXT_STATE <=CR2A;
 		end if;
-		
-	
+
+
 		WHEN CR2A =>
 		If (FIN  = '1') then NEXT_STATE <= CR2B;
 			else NEXT_STATE <=CR2A;
@@ -90,7 +90,7 @@ CASE PRES_STATE IS
 		end if;
 
 		WHEN CR3B =>
-		If (FIN  = '1') then NEXT_STATE <= CR3B; 
+		If (FIN  = '1') then NEXT_STATE <= CR3B;
 			else NEXT_STATE <=CR4A;
 		end if;
 		WHEN CR4A =>
@@ -101,7 +101,7 @@ CASE PRES_STATE IS
 		If (FIN  = '1') then NEXT_STATE <= CR4B;
 		ELSE NEXT_STATE <= INCFA;
 		END IF;
-		
+
 		WHEN INCFA =>
 		If (FIN  = '1') then NEXT_STATE <= INCFB;
 			else NEXT_STATE <= INCFA;
@@ -110,7 +110,7 @@ CASE PRES_STATE IS
 		WHEN INCFB =>
 		If (FIN  = '1') then NEXT_STATE <= INCFB;
 			else NEXT_STATE <=FFCTLA;
-		end if;	
+		end if;
 
 
 		WHEN FFCTLA =>
@@ -120,16 +120,16 @@ CASE PRES_STATE IS
 		WHEN FFCTLB =>
 		If (FIN  = '1') then NEXT_STATE <= FFCTLB;
 			else NEXT_STATE <= SWAITA;
-		end if;		
+		end if;
 
 
 		WHEN SWAITA => NEXT_STATE <= SWAITB; --ADDED FOR ACLR
 		WHEN SWAITB =>
 		If ((INTR = '0') AND (TMR = '0') ) then NEXT_STATE <= SWAITB;
 			ELSIF
-			((INTR = '1') AND (TMR = '0') ) then NEXT_STATE <= PRXLA;	
+			((INTR = '1') AND (TMR = '0') ) then NEXT_STATE <= PRXLA;
 			ELSIF
-			((INTR = '1') AND (TMR = '1') ) then NEXT_STATE <= PRXLA;	
+			((INTR = '1') AND (TMR = '1') ) then NEXT_STATE <= PRXLA;
 			ELSE
 			NEXT_STATE <= TOOLGA;--		((INTR = '0') AND (TMR = '1') )
 		end if;
@@ -187,13 +187,13 @@ CASE PRES_STATE IS
 		end if;
 		WHEN RFPLA =>
 		If (FIN  = '1') then NEXT_STATE <= RFPLB;
-		ELSE NEXT_STATE <= RFPLA; 
+		ELSE NEXT_STATE <= RFPLA;
 		END IF;
 		WHEN RFPLB =>
-		If (FIN  = '1') then NEXT_STATE <= RFPLB; 
+		If (FIN  = '1') then NEXT_STATE <= RFPLB;
 		ELSE NEXT_STATE <= RSCNFA;
 		END IF;
-	
+
 
 		WHEN TOOLGA => NEXT_STATE <= TOOLGB;
 		--If (FIN  = '1') then NEXT_STATE <= TOOLGB;
@@ -208,16 +208,16 @@ CASE PRES_STATE IS
 
 	--WHEN S => ST = S;
 
-	END CASE; 
+	END CASE;
 	END PROCESS COMB;
 
 
-outputs: process (pres_state,next_state)
-VARIABLE  CS, CLR	:std_ulogic;
+outputs: process (pres_state)
+VARIABLE  CLR	:std_ulogic;
 VARIABLE AD: STD_LOGIC_VECTOR(8 downto 0);
 VARIABLE DN: STD_LOGIC_VECTOR(7 downto 0);
-begin 
-  state_driven_outputs: case pres_state is 
+begin
+  state_driven_outputs: case pres_state is
 	when S0 => AD := O"000";DN := X"00"; CLR := '1';
 	when ICR2A => AD := O"041";DN := X"80"; CLR := '1';
 	WHEN IRC2B => AD := O"441";DN := X"80"; CLR := '0';
@@ -247,8 +247,8 @@ begin
 	WHEN TMLB => AD := O"653";DN := X"00"; CLR := '0';
 	WHEN TMHA => AD := O"254";DN := X"00"; CLR := '0';
 	WHEN TMHB => AD := O"654";DN := X"00"; CLR := '0';
-	WHEN RFPXLA => AD := O"210"; CLR := '0';
-	WHEN RFPXLB => AD := O"610"; CLR := '0';
+	WHEN RFPXLA => AD := O"210"; DN := X"00"; CLR := '0'; -- todo, check DN values, JR added them to stop latches
+	WHEN RFPXLB => AD := O"610"; DN := X"00"; CLR := '0'; -- todo, check DN values, JR added them to stop latches
 	WHEN SWAITA  => AD := O"075";DN := X"00"; CLR := '1';
 	WHEN SWAITB  => AD := O"475";DN := X"00"; CLR := '0';
 	WHEN RFPLA => AD := O"211";DN := X"00"; CLR := '0';
@@ -258,7 +258,7 @@ begin
 	WHEN TOOLGA => AD := O"074";DN := X"00"; CLR := '0';
 	WHEN TOOLGB => AD := O"474";DN := X"00"; CLR := '0';
 	WHEN OTHERS => AD := O"000";DN := X"00"; CLR := '0';
- 	end case state_driven_outputs; 
+ 	end case state_driven_outputs;
 	ADD <= AD;
 	DIN <= DN;
 ACLR <= CLR;
@@ -266,4 +266,3 @@ ACLR <= CLR;
 END PROCESS OUTPUTS;
 
 	END ADD_SM;
-

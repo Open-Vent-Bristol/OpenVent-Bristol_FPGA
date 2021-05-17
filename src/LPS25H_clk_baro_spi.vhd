@@ -8,8 +8,8 @@ ENTITY LPS25H_CLK_BARO_SPI IS
 
 	PORT
 	(
-		SPICLK						: IN	STD_LOGIC;		
-		FIN							: IN	STD_LOGIC;		
+		SPICLK						: IN	STD_LOGIC;
+		FIN							: IN	STD_LOGIC;
 		CS_L						: IN	STD_LOGIC; -- ACTIVE LOW
 		DIN							: IN	STD_LOGIC;
 		CLK							: IN	STD_LOGIC;
@@ -19,7 +19,7 @@ ENTITY LPS25H_CLK_BARO_SPI IS
 		CSL_CK						: OUT 	STD_LOGIC;
 		FIN_CK						: OUT 	STD_LOGIC
 	);
-	
+
 END LPS25H_CLK_BARO_SPI;
 
 ARCHITECTURE BEHAV OF LPS25H_CLK_BARO_SPI IS
@@ -30,46 +30,31 @@ ARCHITECTURE BEHAV OF LPS25H_CLK_BARO_SPI IS
 	SIGNAL	CSL	: STD_LOGIC;
 BEGIN
 
-	data:PROCESS (CLK, RST_L,sdin,sfin,csl,sspiclk)
+	data:PROCESS (CLK, RST_L)
 	BEGIN
-	
 		IF RST_L = '0' THEN
-		
-			SDIN <= '0';SFIN <= '0';CSL <= '1';
-			
+			SDIN <= '0';
+			SFIN <= '0';
+			CSL  <= '1';
 		ELSIF (CLK 'EVENT AND CLK = '1') THEN
-		
-			
-				SDIN <= DIN;SFIN <= FIN;CSL <= CS_L;
-			
-			ELSE
-			
-				SDIN <= SDIN; SFIN <= SFIN;CSL <= CSL;
-				
-			
+			SDIN <= DIN;
+			SFIN <= FIN;
+			CSL  <= CS_L;
 		END IF;
-		
 	END PROCESS data;
-	clok:PROCESS (CLK, RST_L,sspiclk)
-	BEGIN
-	
-		IF RST_L = '0' THEN
-		
-			SSPICLK <= '0';
-			
-		ELSIF (CLK 'EVENT AND CLK = '1') THEN
-		
-			SSPICLK <= SPICLK;
-			
-			ELSE
-			
-			SSPICLK <= SSPICLK; 
-				
-			END IF;
-			
-		
-	END PROCESS clok;		
-	SPICLK_CK <= SSPICLK;DIN_CK <= SDIN;FIN_CK <= SFIN; CSL_CK <= CSL;
-	
-END BEHAV;
 
+	clok:PROCESS (CLK, RST_L)
+	BEGIN
+		IF RST_L = '0' THEN
+			SSPICLK <= '0';
+		ELSIF (CLK 'EVENT AND CLK = '1') THEN
+			SSPICLK <= SPICLK;
+		END IF;
+	END PROCESS clok;
+
+	SPICLK_CK <= SSPICLK;
+	DIN_CK    <= SDIN;
+	FIN_CK    <= SFIN;
+	CSL_CK    <= CSL;
+
+END BEHAV;

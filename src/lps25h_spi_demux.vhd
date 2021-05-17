@@ -1,4 +1,4 @@
---module demultiplexes serial data from the STM barometer sensor, lps25h and stores in the 
+--module demultiplexes serial data from the STM barometer sensor, lps25h and stores in the
 --separate registers depending on the type of data which is based on the decoded addresses listed below.
 -- The output data is segregated into high and low bytes depnding on the format
 
@@ -22,7 +22,7 @@ ARCHITECTURE demux OF lps25h_spi_demux IS
 	signal RPRSLdata: std_logic_vector(7 downto 0);
 	signal RPRSXLdata : std_logic_vector(7 downto 0);
    --	signal padcldata,tadcldata : std_logic_vector(1 downto 0);
-	--SIGNAL __signal_name : STD_LOGIC; 
+	--SIGNAL __signal_name : STD_LOGIC;
 	CONSTANT PRSH : std_logic_vector(8 downto 0) := O"252";
 	CONSTANT PRSL : std_logic_vector(8 downto 0) := O"251";
 	CONSTANT PRSXL : std_logic_vector(8 downto 0) := O"250";
@@ -32,8 +32,8 @@ ARCHITECTURE demux OF lps25h_spi_demux IS
 	--CONSTANT RPRSL : std_logic_vector(8 downto 0) := O"211";
 	--CONSTANT RPRSXL : std_logic_vector(8 downto 0) := O"210";
 BEGIN
-unencode: process( add, fin, spi_data, rst_l,prshdata,prsldata,prsxldata,tmphdata,tmpldata)--,rprshdata,rprsldata,rprsxldata
-begin 
+unencode: process( fin, rst_l)--,rprshdata,rprsldata,rprsxldata
+begin
 if (RST_L = '0') THEN
 	 PRSHdata <= (others => '0'); PRSLdata <= (others => '0'); PRSXLdata <= (others => '0');TMPHdata <= (others => '0');
 	TMPLdata <= (others => '0');--RPRSHdata <= (others => '0');--RPRSLdata <= (others => '0');
@@ -50,17 +50,13 @@ if (RST_L = '0') THEN
 			--	when RPRSL =>  RPRSLdata <= spi_data;
 			--	when RPRSXL =>  RPRSXLdata <= spi_data;
 				when others => PRSHdata <= PRSHdata ;PRSLdata <= PRSLdata;PRSXLdata <= PRSXLdata;TMPHdata <= TMPHdata;TMPLdata <= TMPLdata;
-				RPRSLdata <= RPRSLdata;RPRSXLdata <= RPRSXLdata;
+				--RPRSLdata <= RPRSLdata;RPRSXLdata <= RPRSXLdata;
 
 				end case;
-				else  PRSHdata <= PRSHdata ;PRSLdata <= PRSLdata;PRSXLdata <= PRSXLdata;TMPHdata <= TMPHdata;TMPLdata <= TMPLdata;
-			--	RPRSLdata <= RPRSLdata;RPRSXLdata <= RPRSXLdata;
-		
+
 		end if;
+end process unencode;
 				PRSH_data <= PRSHdata ;PRSL_data <= PRSLdata;PRSXL_data <= PRSXLdata;TMPH_data <= TMPHdata;TMPL_data <= TMPLdata;--RPRSH_data <= RPRSHdata;
 				--RPRSL_data <= RPRSLdata;RPRSXL_data <= RPRSXLdata;
 
-end process unencode;
 end demux;
-
-

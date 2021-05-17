@@ -1,4 +1,5 @@
 IO_LOC "CLCK"                   39
+CLOCK_LOC "clk" BUFG = CLK;
 
 IO_LOC "Vref_DRV"                   55
 IO_PORT "Vref_DRV"                  IO_TYPE=LVCMOS18 PULL_MODE=UP DRIVE=8;
@@ -53,10 +54,10 @@ IO_PORT "SPK2_LOW_REF"              IO_TYPE=LVDS25 PULL_MODE=NONE BANK_VCCIO=2.5
 #IO_LOC "PB_MUTE"                5
 #IO_LOC "PB_PLUS"                10
 #IO_LOC "PB_SEL"                 84
-#IO_LOC "SPI2_MISO"              22
-#IO_LOC "SPI2_MOSI"              23
-#IO_LOC "SPI_SCLK"               27
-#IO_LOC "SPI2_PRES_CS"           28
+IO_LOC "SPI2_MISO"              22
+IO_LOC "SPI2_MOSI"              23
+IO_LOC "SPI_SCLK"               27
+IO_LOC "SPI2_PRES_CS"           28
 #IO_LOC "SPI1_MISO"              29
 #IO_LOC "SPI1_MOSI"              30
 #IO_LOC "SPI1_SCLK"              31
