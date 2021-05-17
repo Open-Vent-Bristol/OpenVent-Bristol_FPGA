@@ -62,8 +62,8 @@ IO_PORT "SPK2_LOW_REF"              IO_TYPE=LVDS25 PULL_MODE=NONE BANK_VCCIO=2.5
 #IO_LOC "SPI1_SCLK"              31
 #IO_LOC "SPI1_FPGA_CS"           32
 #IO_LOC "VIN_FAIL_F"             33
-#IO_LOC "I2C_SCL"                43
-#IO_LOC "I2C_SDA"                44
+IO_LOC "I2C_SCL"                43
+IO_LOC "I2C_SDA"                44
 #IO_LOC "F_DRV"                  45
 #IO_LOC "G_DRV"                  46
 #IO_LOC "LED_SERIAL_DRV"         40

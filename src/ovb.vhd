@@ -48,8 +48,8 @@ entity ovb is
         -- SPI1_SCLK              : in    STD_LOGIC;
         -- SPI1_FPGA_CS           : in    STD_LOGIC;
         -- VIN_FAIL_F             : in    STD_LOGIC;
-        -- I2C_SCL                : out   STD_LOGIC;
-        -- I2C_SDA                : inout STD_LOGIC;
+        I2C_SCL                : inout STD_LOGIC;
+        I2C_SDA                : inout STD_LOGIC;
         -- F_DRV                  : out   STD_LOGIC;
         -- G_DRV                  : out   STD_LOGIC;
         -- LED_SERIAL_DRV         : out   STD_LOGIC;
@@ -75,6 +75,15 @@ entity ovb is
 end entity;
 
 architecture rtl of ovb is
+
+    COMPONENT IOBUF
+    PORT (
+        O   :OUT   std_logic;
+        IO  :INOUT std_logic;
+        I   :IN    std_logic;
+        OEN :IN    std_logic
+    );
+    END COMPONENT;
 
     COMPONENT TLVDS_IBUF
     PORT (
@@ -107,6 +116,13 @@ architecture rtl of ovb is
     signal SPK1_LOW_N           : STD_LOGIC;
     signal SPK2_HIGH            : STD_LOGIC;
     signal SPK2_LOW_N           : STD_LOGIC;
+
+    signal I2C_SCL_o            : STD_LOGIC;
+    signal I2C_SCL_i            : STD_LOGIC;
+    signal I2C_SCL_oen          : STD_LOGIC;
+    signal I2C_SDA_o            : STD_LOGIC;
+    signal I2C_SDA_i            : STD_LOGIC;
+    signal I2C_SDA_oen          : STD_LOGIC;
 
 begin
 
@@ -266,6 +282,27 @@ begin
             IB => SPK2_LOW_REF,
             O  => SPK2_LOW_N        -- Low if sens above ref
         );
+
+    IOBUF_SCL_i : IOBUF
+        PORT MAP (
+            O   => I2C_SCL_o,
+            IO  => I2C_SCL,
+            I   => I2C_SCL_i,
+            OEN => I2C_SCL_oen
+        );
+
+    IOBUF_SDA_i : IOBUF
+        PORT MAP (
+            O   => I2C_SDA_o,
+            IO  => I2C_SDA,
+            I   => I2C_SDA_i,
+            OEN => I2C_SDA_oen
+        );
+
+        I2C_SCL_i   <= '1' when I2C_SCL_oen = '1' else I2C_SCL_o;
+        I2C_SCL_oen <= '1';
+        I2C_SDA_i   <= '1' when I2C_SDA_oen = '1' else I2C_SDA_o;
+        I2C_SDA_oen <= '1';
 
     process (clk)
     begin
