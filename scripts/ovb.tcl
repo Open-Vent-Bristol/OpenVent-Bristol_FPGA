@@ -1,21 +1,26 @@
 set name ovb
 
-set_device -name GW1N-9 {GW1N-LV9LQ144C6/I5}
-
+set_device -name GW1N-9 {GW1N-UV9LQ100C5/I4}
 
 # Add source files
-add_file ../../src/Alarm_common.vhd
-add_file ../../src/ovb_h.vhd
-add_file ../../src/clocks_and_reset.vhd
-add_file ../../src/box_ave.vhd
-add_file ../../src/sigmadelta_adc.vhd
-add_file ../../src/${name}.vhd
-
+add_file ../src/Alarm_common.vhd
+add_file ../src/ovb_h.vhd
+add_file ../src/clocks_and_reset.vhd
+add_file ../src/box_ave.vhd
+add_file ../src/sigmadelta_adc.vhd
+add_file ../src/lps25h_baro_add_sync.vhd
+add_file ../src/lps25h_baro_rdwr.vhd
+add_file ../src/LPS25H_clk_baro_spi.vhd
+add_file ../src/lps25h_clkgen_one_msec.vhd
+add_file ../src/lps25h_reformat.vhd
+add_file ../src/lps25h_spi_demux.vhd
+add_file ../src/lps25h_timer.vhd
+add_file ../src/lps25h_baro_spi_format.vhd
+add_file ../src/${name}.vhd
 
 # Add constraint files
-add_file ../../constraints/physical.cst
-add_file ../../constraints/timing.sdc
-
+add_file ../constraints/ovb.cst
+add_file ../constraints/ovb.sdc
 
 # Set base name of file
 set_option -output_base_name ${name}
@@ -38,7 +43,6 @@ set_option -bit_compress 1
 # Use MSPI as GPIO (FASTRD_N/D3, MCLK/D4, MCS_N/D5, MI/D7, MO/D6)
 set_option -use_mspi_as_gpio 1
 set_option -use_sspi_as_gpio 1
-
 
 # Run synthesis and implementation
 run all

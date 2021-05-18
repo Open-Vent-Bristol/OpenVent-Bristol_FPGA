@@ -85,7 +85,7 @@ architecture rtl of ovb is
     );
     END COMPONENT;
 
-    COMPONENT TLVDS_IBUF
+    COMPONENT ELVDS_IBUF
     PORT (
         O  :OUT std_logic;
         I  :IN  std_logic;
@@ -144,7 +144,7 @@ begin
 
     Vref_DRV <= '1';
 
-    TLVDS_IBUF_O2_SENS_i : TLVDS_IBUF
+    ELVDS_IBUF_O2_SENS_i : ELVDS_IBUF
     port map (
         I  => AD_VREF_O2_SENS,
         IB => Vcap_O2_SENS,
@@ -167,7 +167,7 @@ begin
             sample_rdy  => O2_SENS_VALID -- digital_out is ready
         );
 
-    TLVDS_IBUF_PRES_SENS_VENT_i : TLVDS_IBUF
+    ELVDS_IBUF_PRES_SENS_VENT_i : ELVDS_IBUF
         port map (
             I  => AD_VREF_PRES_SENS_VENT,
             IB => Vcap_PRES_SENS_VENT,
@@ -190,7 +190,7 @@ begin
             sample_rdy  => PRES_SENS_VENT_VALID -- digital_out is ready
         );
 
-    TLVDS_IBUF_PRES_SENS_PAT_i : TLVDS_IBUF
+    ELVDS_IBUF_PRES_SENS_PAT_i : ELVDS_IBUF
         port map (
             I  => AD_VREF_PRES_SENS_PAT,
             IB => Vcap_PRES_SENS_PAT,
@@ -213,7 +213,7 @@ begin
             sample_rdy  => PRES_SENS_PAT_VALID -- digital_out is ready
         );
 
-    TLVDS_IBUF_FLOW_SENS_DRCT_i : TLVDS_IBUF
+    ELVDS_IBUF_FLOW_SENS_DRCT_i : ELVDS_IBUF
         port map (
             I  => AD_VREF_FLOW_SENS_DRCT,
             IB => Vcap_FLOW_SENS_DRCT,
@@ -236,7 +236,7 @@ begin
             sample_rdy  => FLOW_SENS_DRCT_VALID -- digital_out is ready
         );
 
-    TLVDS_IBUF_FLOW_SENS_GAIN_i : TLVDS_IBUF
+    ELVDS_IBUF_FLOW_SENS_GAIN_i : ELVDS_IBUF
         port map (
             I  => AD_VREF_FLOW_SENS_GAIN,
             IB => Vcap_FLOW_SENS_GAIN,
@@ -259,28 +259,28 @@ begin
             sample_rdy  => FLOW_SENS_GAIN_VALID -- digital_out is ready
         );
 
-    TLVDS_IBUF_SPK1_HIGH_i : TLVDS_IBUF
+    ELVDS_IBUF_SPK1_HIGH_i : ELVDS_IBUF
         port map (
             I  => SPK1_HIGH_SENS,
             IB => SPK1_HIGH_REF,
             O  => SPK1_HIGH         -- High if sens above ref
         );
 
-    TLVDS_IBUF_SPK1_LOW_i : TLVDS_IBUF
+    ELVDS_IBUF_SPK1_LOW_i : ELVDS_IBUF
         port map (
             I  => SPK1_LOW_SENS,
             IB => SPK1_LOW_REF,
             O  => SPK1_LOW_N        -- Low if sens below ref
         );
 
-    TLVDS_IBUF_SPK2_HIGH_i : TLVDS_IBUF
+    ELVDS_IBUF_SPK2_HIGH_i : ELVDS_IBUF
         port map (
             I  => SPK2_HIGH_SENS,
             IB => SPK2_HIGH_REF,
             O  => SPK2_HIGH         -- High if sens above ref
         );
 
-    TLVDS_IBUF_SPK2_LOW_i : TLVDS_IBUF
+    ELVDS_IBUF_SPK2_LOW_i : ELVDS_IBUF
         port map (
             I  => SPK2_LOW_SENS,
             IB => SPK2_LOW_REF,
