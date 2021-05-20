@@ -142,7 +142,16 @@ begin
             hb    => hb
         );
 
-    Vref_DRV <= '1';
+    vref_drv_nco_pwm_i : entity work.nco_pwm
+        generic map (
+            MAX_COUNT => 250,
+            DUTY      => 235
+        )
+        port map (
+            clk   => clk,
+            rst   => rst,
+            pwm_o => Vref_DRV
+        );
 
     ELVDS_IBUF_O2_SENS_i : ELVDS_IBUF
     port map (
