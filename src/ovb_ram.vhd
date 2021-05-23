@@ -64,7 +64,7 @@ port
     ui_ack_o            : out std_ulogic;
     
     -- Additional Signals
-    cfg_mode_change_i   : in std_ulogic;                            -- Change to/from Standby to something 
+    cfg_mode_change_i   : in std_ulogic;                            -- Change to/from Standby to something else
     alarm_status_o      : out std_ulogic_vector(31 downto 0);       -- Alarm status flags
 
     test_point_o        : out std_ulogic_vector(7 downto 0)
