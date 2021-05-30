@@ -163,7 +163,7 @@ package ovb_h_rlj is
     );
     
     constant DATA_RAM_MAX : std_ulogic_vector(31 downto 0) := x"0000FFFF";
-
+    
 end package ovb_h_rlj;
 
 package body ovb_h_rlj is

@@ -24,21 +24,21 @@ use ieee.numeric_std.all;
 
 package configuration_flash_pkg is
 
-    component FLASH64KZ
-    port 
-    (   
-        XADR    : in std_logic_vector(4 downto 0);
-        YADR    : in std_logic_vector(5 downto 0);
-        XE      : in std_logic;
-        YE      : in std_logic;
-        SE      : in std_logic;
-        ERASE   : in std_logic;
-        PROG    : in std_logic;
-        NVSTR   : in std_logic;
-        DIN     : in std_logic_vector(31 downto 0);
-        DOUT    : out std_logic_vector(31 downto 0)
-    );
-    end component;
+--    component FLASH64KZ
+--    port 
+--    (   
+--        XADR    : in std_logic_vector(4 downto 0);
+--        YADR    : in std_logic_vector(5 downto 0);
+--        XE      : in std_logic;
+--        YE      : in std_logic;
+--        SE      : in std_logic;
+--        ERASE   : in std_logic;
+--        PROG    : in std_logic;
+--        NVSTR   : in std_logic;
+--        DIN     : in std_logic_vector(31 downto 0);
+--        DOUT    : out std_logic_vector(31 downto 0)
+--    );
+--    end component;
     
     component clock_divider is
     generic
