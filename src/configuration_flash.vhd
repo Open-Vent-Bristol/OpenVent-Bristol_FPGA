@@ -81,7 +81,7 @@ architecture Behavioral of configuration_flash is
     signal write_complete : std_ulogic := '0';
     signal write_recover_complete : std_ulogic := '0';
     
-    constant position_count_max : natural := 15;
+    constant position_count_max : natural := 14;
     signal position_count : natural range 0 to position_count_max;
     
     constant read_count_max : natural := 2;
@@ -105,7 +105,7 @@ begin
     generic map
     (
         g_reset_active => g_reset_active,
-        g_output_clock_counts => 85                     -- 5us-ish
+        g_output_clock_counts => 62                     -- 2.5us-ish
     )
     port map
     (
@@ -119,10 +119,14 @@ begin
     config_sync_inputs: process(all)
     begin
         if rst_a_n_i = g_reset_active then
-            
+            flash_write_req <= '0';
+            flash_read_req <= '0';
+            temp_data <= (others => '0');
         elsif rising_edge (clk_i) then
             if soft_rst_n_i = g_reset_active then
-                
+                flash_write_req <= '0';
+                flash_read_req <= '0';
+                temp_data <= (others => '0');
             else
                 if currentstate = IDLE then
                     if cfg_oe_i = '1' then                          -- If stuff needs to be done
@@ -143,21 +147,6 @@ begin
             end if;
         end if;    
     end process config_sync_inputs;
-    
-    config_sync_data: process(all)
-    begin
-        if rst_a_n_i = g_reset_active then
-            
-        elsif rising_edge (clk_i) then
-            if soft_rst_n_i = g_reset_active then
-                
-            else
-                if cfg_data_valid_i = '1' then
-                    temp_data <= cfg_data_i;
-                end if;
-            end if;
-        end if;    
-    end process config_sync_data;
 
     fsm_driver : process (all)
     begin
@@ -255,6 +244,13 @@ begin
         position_count <= 0;
         read_count <= 0;
         write_count <= 0;
+        flash_temp_data <= (others => '0');
+        flash_data_ready <= '0';
+        flash_cycle <= '0';
+        erase_active <= '0';
+        erase_setup_complete <= '0';
+        erase_recover_complete <= '0';
+        write_recover_complete <= '0';
     end procedure reset;
 
     begin
@@ -264,6 +260,9 @@ begin
             if soft_rst_n_i = g_reset_active then
                 reset;
             else
+                flash_data_ready <= '0';
+                write_complete <= '0';
+                all_writes_complete <= '0';
                 if currentstate = IDLE then
                     first_run <= '0';
                     flash_access_reset;
@@ -297,7 +296,7 @@ begin
                     end if;
 
                 elsif currentstate = ERASE_SETUP then
-                    flash_cycle <= '0';
+                    erase_active <= flash_cycle;
                     if erase_active = '0' and erase_setup_complete = '0' then
                         write_count <= write_count + 1;
                         if write_count < write_count_max then
@@ -319,12 +318,13 @@ begin
                             end if;
                         else
                             flash_cycle <= '1';
-                            erase_active <= '1';
                             write_count <= 0;
                         end if; 
                     else
                         if flash_timeout = '1' then
                             erase_setup_complete <= '1';
+                            flash_cycle <= '0';
+                            erase_active <= '0';
                         else
                             erase_setup_complete <= '0';
                         end if;
@@ -385,9 +385,13 @@ begin
                                 flash_y_en <= '1';
                             else
                                 flash_y_en <= '0';
+                                if position_count < 13 then
+                                    write_complete <= '1';
+                                else
+                                    write_complete <= '0';
+                                end if;
                             end if;
                         else
-                            write_complete <= '1';
                             write_count <= 0;
                             position_count <= position_count + 1;
                         end if;

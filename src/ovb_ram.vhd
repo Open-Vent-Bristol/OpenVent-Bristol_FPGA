@@ -35,37 +35,40 @@ port
     clk_i               : in std_ulogic;                                    -- System Clock IN
     rst_a_n_i           : in std_ulogic;                                    -- Asynchronous Reset IN
     soft_rst_n_i        : in std_ulogic;                                    -- Synchronous Reset IN (here if you need/want it)
+    
+    ram_busy_o          : out std_ulogic; 
 
     -- Probably used for MCU
-    mcu_addr_i         : in std_ulogic_vector(31 downto 0);   
+    mcu_addr_i         : in std_ulogic_vector(7 downto 0); 
+    mcu_sel_i          : in std_ulogic;                                 -- '1' Get Sensor Data, '0' Get MinMax Data  
     mcu_oe_i           : in std_ulogic;
-    mcu_data_o         : out std_ulogic_vector(31 downto 0);
+    mcu_data_o         : out std_ulogic_vector(15 downto 0);
     mcu_ack_o          : out std_ulogic;   
     
     -- Probably used for UART
-    uart_addr_i         : in std_ulogic_vector(31 downto 0);   
+    uart_addr_i         : in std_ulogic_vector(7 downto 0); 
+    uart_sel_i          : in std_ulogic;                                -- '1' Get Sensor Data, '0' Get MinMax Data 
     uart_oe_i           : in std_ulogic;
-    uart_data_o         : out std_ulogic_vector(31 downto 0);
+    uart_data_o         : out std_ulogic_vector(15 downto 0);
     uart_ack_o          : out std_ulogic;                
 
     -- From Sensor Arbitration
-    sensor_addr_i       : in std_ulogic_vector(31 downto 0);
-    sensor_data_i       : in std_ulogic_vector(31 downto 0);
+    sensor_addr_i       : in std_ulogic_vector(7 downto 0);
+    sensor_data_i       : in std_ulogic_vector(15 downto 0);
     sensor_data_valid_i : in std_ulogic;
     
     -- To/From UI
-    ui_addr_i           : in std_ulogic_vector(31 downto 0);
+    ui_addr_i           : in std_ulogic_vector(7 downto 0);
+    ui_sel_i            : in std_ulogic;                                -- '1' Get Sensor Data, '0' Get/Set MinMax Data
     ui_oe_i             : in std_ulogic;
     ui_we_i             : in std_ulogic;
-    ui_data_i           : in std_ulogic_vector(31 downto 0);
-    ui_data_valid_i     : in std_ulogic;
-    ui_data_o           : out std_ulogic_vector(31 downto 0);
-    ui_data_valid_o     : out std_ulogic;
+    ui_data_i           : in std_ulogic_vector(15 downto 0);
+    ui_data_o           : out std_ulogic_vector(15 downto 0);
     ui_ack_o            : out std_ulogic;
     
     -- Additional Signals
     cfg_mode_change_i   : in std_ulogic;                            -- Change to/from Standby to something else
-    alarm_status_o      : out std_ulogic_vector(31 downto 0);       -- Alarm status flags
+    alarm_status_o      : out std_ulogic_vector(15 downto 0);       -- Alarm status flags 7 alarms, each with 2 states, "00" at start to make it 16 bit
 
     test_point_o        : out std_ulogic_vector(7 downto 0)
 );
@@ -118,7 +121,7 @@ architecture Behavioral of ovb_ram is
     signal cfg_oe : std_ulogic := '0';
     signal cfg_we : std_ulogic := '0';
     
-    signal cfg_lock : std_ulogic := '0';
+    signal cfg_lock : std_ulogic := '1';
     
     constant cfg_count_max : natural := 13;
     signal cfg_count : natural range 0 to cfg_count_max;
@@ -160,15 +163,15 @@ architecture Behavioral of ovb_ram is
     signal sensor_ram_ack : std_ulogic := '0';
     signal sensor_min_access : std_ulogic := '0';
 
-    signal sensor_ram_addr : std_ulogic_vector(31 downto 0) := (others => '0');
-    signal sensor_ram_data_in : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal sensor_ram_addr : std_ulogic_vector(7 downto 0) := (others => '0');
+    signal sensor_ram_data_in : std_ulogic_vector(15 downto 0) := (others => '0');
     
     signal minmax_ram_we : std_ulogic := '0';
     signal minmax_ram_ack : std_ulogic := '0';
    
     signal minmax_ram_active : std_ulogic := '0';
-    signal minmax_ram_addr : std_ulogic_vector(31 downto 0) := (others => '0');
-    signal minmax_ram_data_in : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal minmax_ram_addr : std_ulogic_vector(7 downto 0) := (others => '0');
+    signal minmax_ram_data_in : std_ulogic_vector(15 downto 0) := (others => '0');
     signal cfg_data_in : std_ulogic_vector(31 downto 0) := (others => '0');
 
     signal cfg_minmax_ram_control : std_ulogic := '0';
@@ -176,24 +179,27 @@ architecture Behavioral of ovb_ram is
     signal uart_minmax_ram_control : std_ulogic := '0';
     signal ui_minmax_ram_control : std_ulogic := '0';
     
-    signal sensor_ram_data_out : std_ulogic_vector(31 downto 0) := (others => '0');
-    signal minmax_ram_data_out : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal sensor_ram_data_out : std_ulogic_vector(15 downto 0) := (others => '0');
+    signal minmax_ram_data_out : std_ulogic_vector(15 downto 0) := (others => '0');
     
-    signal minmax_ram_addr_temp : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal minmax_ram_addr_temp : std_ulogic_vector(7 downto 0) := (others => '0');
     
     constant access_count_max : natural := 2;
     signal access_count : natural range 0 to access_count_max;
     
-    signal temp_data_max : std_ulogic_vector(31 downto 0) := (others => '0');
-    signal temp_data_min : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal temp_data_max : std_ulogic_vector(15 downto 0) := (others => '0');
+    signal temp_data_min : std_ulogic_vector(15 downto 0) := (others => '0');
 
-    signal alarm_status : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal alarm_status : std_ulogic_vector(15 downto 0) := (others => '0');
     
     signal cfg_data_out : std_ulogic_vector(31 downto 0) := (others => '0');
     signal cfg_ack_out : std_ulogic := '0';
     
-    type ram_t is array (127 downto 0) of std_ulogic_vector(31 downto 0);
+    type ram_t is array (127 downto 0) of std_ulogic_vector(15 downto 0);
     signal sensor_ram, minmax_ram : ram_t := (others => (others => '0'));
+    
+    signal ram_busy : std_ulogic := '0';
+    signal sensor_data_alarm : std_ulogic := '0';
  
 begin
 
@@ -201,7 +207,6 @@ begin
     
     procedure reset is
     begin
-        cfg_data_valid_in <= '0';
         cfg_data_valid_mono <= '0';
         cfg_data_valid <= '0';
     end procedure reset;
@@ -228,20 +233,14 @@ begin
     end process config_flash_sync_data;
     
     config_flash_sync_req: process(all)
-    
-    procedure reset is
-    begin
-        cfg_data_req_in <= '0';
-        cfg_data_req_mono <= '0';
-        cfg_data_req <= '0';
-    end procedure reset;
-    
     begin
         if rst_a_n_i = g_reset_active then
-            reset;
+            cfg_data_req_mono <= '0';
+            cfg_data_req <= '0';
         elsif rising_edge(clk_i) then
             if soft_rst_n_i = g_reset_active then
-                reset;
+                cfg_data_req_mono <= '0';
+                cfg_data_req <= '0';
             else
                 if cfg_data_req_in = '1' then
                     if cfg_data_req_mono = '0' then
@@ -301,7 +300,7 @@ begin
         cfg_we <= '0';
         cfg_read_req <= '0';
         cfg_write_req <= '0';
-        cfg_lock <= '0';
+        cfg_lock <= '1';
         cfg_count <= 0;
     end procedure reset;
 
@@ -312,33 +311,34 @@ begin
             if soft_rst_n_i = g_reset_active then
                 reset;
             else
+                cfg_oe <= '0';
                 if cfg_read_active = '1' then
                     cfg_lock <= '1';
                     cfg_oe <= '1';
                     cfg_we <= '0';
-                    if cfg_data_valid_in = '1' then
+                    if cfg_data_valid = '1' then
+                        cfg_read_req <= '1';
+                    elsif minmax_setup_write_finished = '1' and cfg_read_req = '1' then
+                        cfg_read_req <= '0';
                         if cfg_count < cfg_count_max then
-                            cfg_read_req <= '1';
                             cfg_count <= cfg_count + 1;
                         else
                             cfg_count <= 0;
                             cfg_lock <= '0';
                         end if;
-                    elsif minmax_setup_write_finished = '1' then
-                        cfg_read_req <= '0';
                     end if;
                 else
-                    if (cfg_mode_change_i = '1' or cfg_data_req = '1') or cfg_write_inhibit = '1' then
+                    if (cfg_mode_change_i = '1' or cfg_data_req = '1') and cfg_write_inhibit = '0' then
                         cfg_oe <= '1';
                         cfg_we <= '1';
                         cfg_write_req <= '1';
+                    elsif minmax_setup_read_finished = '1' and cfg_write_req = '1' then
+                        cfg_write_req <= '0';
                         if cfg_count < cfg_count_max then
                             cfg_count <= cfg_count + 1;
                         else
                             cfg_count <= 0;
                         end if;
-                    elsif minmax_setup_read_finished = '1' then
-                        cfg_write_req <= '0';
                     end if;
                 end if;
             end if;
@@ -356,7 +356,7 @@ begin
                 mcu_minmax_req <= '0';
             else
                 if mcu_oe_i = '1' then
-                    if mcu_addr_i <= DATA_RAM_MAX then
+                    if mcu_sel_i = '1' then
                         mcu_sensor_req <= '1';
                     else
                         mcu_minmax_req <= '1';
@@ -380,7 +380,7 @@ begin
                 uart_minmax_req <= '0';
             else
                 if uart_oe_i = '1' then
-                    if uart_addr_i <= DATA_RAM_MAX then
+                    if uart_sel_i = '1' then
                         uart_sensor_req <= '1';
                     else
                         uart_minmax_req <= '1';
@@ -406,7 +406,7 @@ begin
                 ui_minmax_read_req <= '0';
             else
                 if ui_oe_i = '1' then
-                    if ui_addr_i <= DATA_RAM_MAX then
+                    if ui_sel_i = '1' then
                         ui_sensor_req <= '1';
                     else
                         ui_minmax_req <= '1';
@@ -418,6 +418,7 @@ begin
                     end if;
                 elsif ui_minmax_ack = '1' or ui_data_ack = '1' then
                     ui_sensor_req <= '0';
+                    ui_minmax_req <= '0';
                     ui_minmax_write_req <= '0';
                     ui_minmax_read_req <= '0';
                 end if;
@@ -436,9 +437,11 @@ begin
                 sensor_minmax_req <= '0';
             else
                 if sensor_data_valid_i = '1' then
+                    ram_busy <= '1';
                     sensor_sensor_req <= '1';
                     sensor_minmax_req <= '1';
                 elsif sensor_minmax_ack = '1' or sensor_sensor_ack = '1' then
+                    ram_busy <= '0';
                     sensor_sensor_req <= '0';
                     sensor_minmax_req <= '0';
                 end if;
@@ -448,15 +451,23 @@ begin
 
     sensor_ram_control: process(all)
     
+    procedure write_read_reset is
+    begin
+        sensor_sensor_ack <= '0';
+        mcu_data_ack <= '0';
+        uart_data_ack <= '0';
+        ui_data_ack <= '0';
+    end procedure write_read_reset;
+    
     procedure reset is
     begin
+        write_read_reset;
         mcu_sensor_ram_control <= '0';
         uart_sensor_ram_control <= '0';
         ui_sensor_ram_control <= '0';
         
         sensor_ram_we <= '0';
         sensor_ram_active <= '0';
-        sensor_ram_ack <= '0';
         
         sensor_ram_addr <= (others => '0');
         sensor_ram_data_in <= (others => '0');
@@ -469,6 +480,7 @@ begin
             if soft_rst_n_i = g_reset_active then
                 reset; 
             else
+                write_read_reset;
                 if sensor_sensor_req = '1' then                          -- Sensors have priority as they need to write to this ram
                     sensor_ram_we <= '1';
                     sensor_ram_active <= not sensor_ram_ack;
@@ -514,24 +526,49 @@ begin
             end if;
         end if;
     end process sensor_ram_control;
-    
-
 
     minmax_ram_control: process(all)
+    
+    procedure write_read_reset is
+    begin
+        minmax_setup_write_finished <= '0';
+        minmax_setup_read_finished <= '0';
+        sensor_minmax_ack <= '0';
+        mcu_minmax_ack <= '0';
+        uart_minmax_ack <= '0';
+        ui_minmax_ack <= '0';
+    end procedure write_read_reset;
+    
+    procedure reset is
+    begin
+        write_read_reset;
+        minmax_ram_addr_temp <= (others => '0');
+        minmax_ram_we <= '0';
+        minmax_ram_active <= '0';
+        minmax_ram_addr <= (others => '0');
+        minmax_ram_data_in <= (others => '0');
+        cfg_minmax_ram_control <= '0';
+        sensor_min_access <= '0';
+        mcu_minmax_ram_control <= '0';
+        ui_minmax_ram_control <= '0';
+        uart_minmax_ram_control <= '0';
+    end procedure reset;
+
     begin
         if rst_a_n_i = g_reset_active then
-
+            reset;
         elsif rising_edge(clk_i) then
             if soft_rst_n_i = g_reset_active then
-
+                reset;
             else
+                write_read_reset;
                 if cfg_read_req = '1' then
             
                     minmax_ram_we <= '1';
                     minmax_setup_write_finished <= minmax_ram_ack;
                     minmax_ram_active <= not minmax_ram_ack;
                     minmax_ram_addr <= std_ulogic_vector(to_unsigned(cfg_count, minmax_ram_addr'length));
-                    minmax_ram_data_in <= cfg_data_in;
+                    minmax_ram_data_in <= cfg_data_in(15 downto 0);
 
                 elsif cfg_write_req = '1' then
             
@@ -547,13 +584,17 @@ begin
                     end if;
 
                 elsif sensor_minmax_req = '1' then                          -- Sensors have priority as they need to read from here iot write to sensor RAM
-                    minmax_ram_we <= '1';
-                    if sensor_min_access = '0' then
-                        minmax_ram_addr <= sensor_addr_i;
-                        sensor_min_access <= '1';
-                    else
-                        minmax_ram_addr <= std_ulogic_vector(unsigned(minmax_ram_addr) + to_unsigned(1, minmax_ram_addr'length));
-                        sensor_minmax_ack <= minmax_ram_ack;
+                    minmax_ram_we <= '0';
+                    if minmax_ram_active = '1' then
+                        if sensor_min_access = '0' then
+                            minmax_ram_addr <= sensor_addr_i(6 downto 0) & '0';         -- Multiply by 2
+                            minmax_ram_addr_temp <= sensor_addr_i(6 downto 0) & '0';         -- Multiply by 2
+                            sensor_min_access <= '1';
+                        else
+                            minmax_ram_addr <= std_ulogic_vector(unsigned(minmax_ram_addr) + to_unsigned(1, minmax_ram_addr'length));
+                            sensor_minmax_ack <= minmax_ram_ack;
+                            sensor_min_access <= '0';
+                        end if;
                     end if;
                     minmax_ram_active <= not minmax_ram_ack;
                 elsif mcu_minmax_req = '1' then                          -- MCU has 2nd priority as it's fastest
@@ -582,18 +623,18 @@ begin
                     minmax_ram_active <= not minmax_ram_ack;
                     minmax_ram_addr <= ui_addr_i;
                 
-                    if ui_minmax_read_req = '1' then
-                        minmax_ram_we <= '0';
-                    else
-                        minmax_ram_we <= '1';
-                        minmax_ram_data_in <= ui_data_i;
-                    end if;
-                    
                     if minmax_ram_ack = '0' then
                         ui_minmax_ram_control <= '1';
+                        if ui_minmax_read_req = '1' then
+                            minmax_ram_we <= '0';
+                        else
+                            minmax_ram_we <= '1';
+                            minmax_ram_data_in <= ui_data_i;
+                        end if;
                     else
                         ui_minmax_ram_control <= '0';
                     end if;
+
                 else
                     mcu_minmax_ram_control <= '0';
                     uart_minmax_ram_control <= '0';
@@ -672,11 +713,11 @@ begin
     
     procedure reset is
     begin
-        minmax_ram_addr_temp <= (others => '0');
         access_count <= 0;
         temp_data_max <= (others => '0');
         temp_data_min <= (others => '0');
         alarm_status <= (others => '0');
+        sensor_data_alarm <= '0';
     end procedure reset;
     
     begin
@@ -691,21 +732,22 @@ begin
                         if minmax_ram_ack = '1' then
                             access_count <= access_count + 1;
                             if access_count = 0 then
-                                minmax_ram_addr_temp <= minmax_ram_addr;
-                                temp_data_min <= minmax_ram_data_out;
+                                if sensor_ram_data_in <= minmax_ram_data_out then
+                                    alarm_status(to_integer(unsigned(minmax_ram_addr_temp))) <= '1';
+                                else
+                                    alarm_status(to_integer(unsigned(minmax_ram_addr_temp))) <= '0';
+                                end if;
                             elsif access_count = 1 then
-                                temp_data_max <= minmax_ram_data_out;
+                                if sensor_ram_data_in >= minmax_ram_data_out then
+                                    alarm_status(to_integer(unsigned(minmax_ram_addr))) <= '1';             -- minmax_ram_addr is sensor_addr_i but + 1
+                                else
+                                    alarm_status(to_integer(unsigned(minmax_ram_addr))) <= '0';
+                                end if; 
                             end if;
                         end if;
                     else
-                        if sensor_ram_data_in >= temp_data_min and sensor_ram_data_in <= temp_data_max then
-                            alarm_status(to_integer(unsigned(minmax_ram_addr_temp))) <= '1';
-                        else
-                            alarm_status(to_integer(unsigned(minmax_ram_addr_temp))) <= '0';
-                        end if;
+                        access_count <= 0;
                     end if;
-                else
-                    access_count <= 0;
                 end if;          
             end if;
         end if;
@@ -733,18 +775,20 @@ begin
 
         test_point_o     => open
     );
-
-    mcu_data_o <= sensor_ram_data_out when mcu_sensor_ram_control = '1';
-    mcu_ack_o  <= sensor_ram_ack      when mcu_sensor_ram_control = '1';
     
-    uart_data_o <= sensor_ram_data_out when uart_sensor_ram_control = '1';
-    uart_ack_o  <= sensor_ram_ack      when uart_sensor_ram_control = '1';
+    ram_busy_o <= ram_busy;
+
+    mcu_data_o <= sensor_ram_data_out when mcu_sensor_ram_control = '1' else minmax_ram_data_out when mcu_minmax_ram_control = '1';         
+    mcu_ack_o  <= sensor_ram_ack      when mcu_sensor_ram_control = '1' else minmax_ram_ack      when mcu_minmax_ram_control = '1' else '0';
+    
+    uart_data_o <= sensor_ram_data_out when uart_sensor_ram_control = '1' else minmax_ram_data_out when uart_minmax_ram_control = '1';         
+    uart_ack_o  <= sensor_ram_ack      when uart_sensor_ram_control = '1' else minmax_ram_ack      when uart_minmax_ram_control = '1' else '0';
 
     ui_data_o <= sensor_ram_data_out when ui_sensor_ram_control = '1' else minmax_ram_data_out when ui_minmax_ram_control = '1';
-    ui_ack_o  <= sensor_ram_ack      when ui_sensor_ram_control = '1' else minmax_ram_ack      when ui_minmax_ram_control = '1';
+    ui_ack_o  <= sensor_ram_ack      when ui_sensor_ram_control = '1' else minmax_ram_ack      when ui_minmax_ram_control = '1' else '0';
     
-    cfg_data_out <= minmax_ram_data_out when cfg_minmax_ram_control = '1';
-    cfg_ack_out  <= minmax_ram_ack      when cfg_minmax_ram_control = '1';
+    cfg_data_out <= (x"0000" & minmax_ram_data_out) when cfg_minmax_ram_control = '1';
+    cfg_ack_out  <= minmax_ram_ack      when cfg_minmax_ram_control = '1' else '0';
     
     alarm_status_o <= alarm_status;
 

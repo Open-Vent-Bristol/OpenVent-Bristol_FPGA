@@ -39,7 +39,6 @@ architecture Behavioral of tb_sensor_arbitration is
         soft_rst_n_i    : in std_ulogic;                                    -- Synchronous Reset IN (here if you need/want it)
         
         ram_busy_i      : in std_ulogic;                        -- If the RAM is IDLE
-        ram_ack_i       : in std_ulogic;                        -- Stops shift count until valid
     
         -- Sigma Delta Signals
         -- O2 Sensor
@@ -86,7 +85,6 @@ architecture Behavioral of tb_sensor_arbitration is
     signal sig_soft_rst_n_i                 : std_ulogic := '0';
 
     signal sig_ram_busy_i                   : std_ulogic := '0';
-    signal sig_ram_ack_i                    : std_ulogic := '0';
 
     signal sig_O2_sd_data_i                 : std_ulogic_vector(13 downto 0) := (others => '0');
     signal sig_O2_sd_data_valid_i           : std_ulogic := '0';
@@ -137,7 +135,6 @@ begin
         soft_rst_n_i              => sig_soft_rst_n_i,             
 
         ram_busy_i                => sig_ram_busy_i,     
-        ram_ack_i                 => sig_ram_ack_i,          
 
         O2_sd_data_i              => test_vector(0),             
         O2_sd_data_valid_i        => test_vector_valid(0),       
@@ -199,43 +196,121 @@ begin
                 if i <= 6 then
                     test_vector(i) <= std_ulogic_vector(to_unsigned((i*2), 14));
                     test_vector_valid(i) <= '1';
+                    
+                    wait for 40ns;
+                    reset;
+                    while(sig_sensor_data_valid_o = '0') loop
+                        wait for 40ns;
+                    end loop;
+                    wait for 40ns;
+                    sig_ram_busy_i <= '1';
+                    wait for 120ns;   
+                    sig_ram_busy_i <= '0';
+                
                 else
-                    if i = 6 then
+                    if i = 7 then
                         test_vector(0) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector(1) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector_valid(0) <= '1';
                         test_vector_valid(1) <= '1';
-                    elsif i = 7 then
+                        
+                        wait for 40ns;
+                        reset;
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                    elsif i = 8 then
                         test_vector(2) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector(3) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector_valid(2) <= '1';
                         test_vector_valid(3) <= '1';
-                    elsif i = 8 then 
+                        
+                        wait for 40ns;
+                        reset;
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                    elsif i = 9 then 
                         test_vector(5) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector(6) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector_valid(5) <= '1';
                         test_vector_valid(6) <= '1';
-                    elsif i = 9 then
-                        test_vector(2) <= std_ulogic_vector(to_unsigned((i*2), 14));
-                        test_vector(4) <= std_ulogic_vector(to_unsigned((i*2), 14));
-                        test_vector(5) <= std_ulogic_vector(to_unsigned((i*2), 14));
+                        
+                        wait for 40ns;
+                        reset;
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                    elsif i = 10 then
+                        test_vector(1) <= std_ulogic_vector(to_unsigned((i*2), 14));
                         test_vector(6) <= std_ulogic_vector(to_unsigned((i*2), 14));
-                        test_vector_valid(2) <= '1';
-                        test_vector_valid(4) <= '1';       
-                        test_vector_valid(5) <= '1';
-                        test_vector_valid(6) <= '1';  
+                        test_vector_valid(1) <= '1';
+                        test_vector_valid(6) <= '1'; 
+                        
+                        wait for 40ns;
+                        reset;
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                        
+                        while(sig_sensor_data_valid_o = '0') loop
+                            wait for 40ns;
+                        end loop;
+                        wait for 40ns;
+                        sig_ram_busy_i <= '1';
+                        wait for 120ns;   
+                        sig_ram_busy_i <= '0';
+                         
                     end if;
                 end if;
-                
-                wait for 40ns;
-                sig_ram_busy_i <= '1';
-                sig_ram_ack_i <= '1';
-                wait for 40ns;
-                sig_ram_ack_i <= '0';
-                reset;
-                wait for 200ns;   
-                sig_ram_busy_i <= '0';
-
+ 
             end loop;
             
             -- Quick Writes --
@@ -251,13 +326,14 @@ begin
             
             for y in 0 to 6 loop
             
+                while(sig_sensor_data_valid_o = '0') loop
+                    wait for 40ns;
+                end loop;
                 wait for 40ns;
                 sig_ram_busy_i <= '1';
-                sig_ram_ack_i <= '1';
-                wait for 40ns;
-                sig_ram_ack_i <= '0';
-                wait for 200ns;
-                
+                wait for 120ns;   
+                sig_ram_busy_i <= '0';
+        
             end loop;
 
             wait for 1ms;

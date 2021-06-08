@@ -162,7 +162,7 @@ package ovb_h_rlj is
         (FIO2_MIN,              FIO2_MAX)
     );
     
-    constant DATA_RAM_MAX : std_ulogic_vector(31 downto 0) := x"0000FFFF";
+    constant DATA_RAM_MAX : std_ulogic_vector(7 downto 0) := x"06";
     
 end package ovb_h_rlj;
 
